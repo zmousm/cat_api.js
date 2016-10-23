@@ -79,24 +79,30 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
         this.options = $.extend( {}, this._defaults, options);
 	this._cache = {};
     }
-    CAT.prototype.getApiBase = function(direct) {
+    CAT.prototype.apiBase = function(direct, newApiBase) {
+	if (typeof newApiBase !== 'undefined') {
+	    if (direct === true) {
+		this.options.apiBaseD = newApiBase;
+	    } else {
+		this.options.apiBase = newApiBase;
+	    }
+	}
     	return direct === true ?
 	    this.options.apiBaseD : this.options.apiBase;
     }
-    CAT.prototype.getLang = function() {
+    CAT.prototype.lang = function(newLang) {
+	if (typeof newLang !== 'undefined') {
+	    this.options.lang = newLang;
+	}
 	return this.options.lang;
     }
-    CAT.prototype.setLang = function(lang) {
-	this.options.lang = lang;
-	return this.options.lang;
-    }
-    CAT.prototype.getDownloadRedirect = function() {
+    CAT.prototype.downloadRedirect = function(newRedirectDownload) {
+	if (typeof newRedirectDownload !== 'undefined') {
+	    this.options.redirectDownload = newRedirectDownload;
+	}
 	return this.options.redirectDownload;
     }
-    CAT.prototype.setDownloadRedirect = function(redirectDownload) {
-	this.options.redirectDownload = redirectDownload;
-	return this.options.redirectDownload;
-    }
+
     CAT.prototype.query = function(qro) {
 	if (!'action' in qro) {
 	    // throw something?
