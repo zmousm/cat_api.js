@@ -109,7 +109,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    return null;
 	}
 	if (!('lang' in qro)) {
-	    qro.lang = this.getLang();
+	    qro.lang = this.lang();
 	}
 
 	var dtype = 'json';
@@ -192,7 +192,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    return null;
 	}
 	if (typeof lang === 'undefined') {
-	    lang = this.getLang();
+	    lang = this.lang();
 	}
 	var $cat = this;
 	if (act in this._cache &&
@@ -205,7 +205,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    var qro = {
 		action: act
 	    }
-	    if (lang !== this.getLang()) {
+	    if (lang !== this.lang()) {
 		qro.lang = lang;
 	    }
 	    var cb = function(ret) {
@@ -253,7 +253,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    return null;
 	}
 	if (typeof lang === 'undefined') {
-	    lang = this.getLang();
+	    lang = this.lang();
 	}
 	var $cat = this;
 	if (act in this._cache &&
@@ -267,7 +267,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    var qro = {
 		action: act
 	    }
-	    if (lang !== this.getLang()) {
+	    if (lang !== this.lang()) {
 		qro.lang = lang;
 	    }
 	    qro[idname] = idval;
@@ -314,7 +314,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    return null;
 	}
 	if (typeof lang === 'undefined') {
-	    lang = this.getLang();
+	    lang = this.lang();
 	}
 	var $cat = this;
 	if (act in this._cache &&
@@ -329,7 +329,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    var qro = {
 		action: act
 	    }
-	    if (lang !== this.getLang()) {
+	    if (lang !== this.lang()) {
 		qro.lang = lang;
 	    }
 	    qro[id1name] = id1val;
