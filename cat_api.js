@@ -380,6 +380,43 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.listAllIdentityProviders = function(lang) {
 	return this._qry1args('listAllIdentityProviders', lang);
     }
+    CAT.prototype.listAllIdentityProvidersByID = function(lang) {
+	var act = 'listAllIdentityProvidersByID';
+	if (typeof lang === 'undefined') {
+	    lang = this.lang();
+	}
+	var $cat = this;
+	var d = $.Deferred();
+	if (act in this._cache &&
+	    lang in this._cache[act]) {
+	    // use a (resolved) promise for consistency
+	    d.resolve(this._cache[act][lang]);
+	} else {
+	    var cb = function(ret) {
+		// console.log('cbID this:', this);
+		// console.log('cbID args:', arguments);
+		if (ret instanceof Array) {
+		    if (!(act in $cat._cache)) {
+			$cat._cache[act] = {};
+		    }
+		    if (!(lang in $cat._cache[act])) {
+			$cat._cache[act][lang] = {};
+		    }
+		    for (var idx = 0; idx < ret.length; idx++) {
+			if ('entityID' in ret[idx]) {
+			    $cat._cache[act][lang][ret[idx].entityID] = ret[idx];
+			}
+		    }
+		    d.resolve($cat._cache[act][lang]);
+		} else {
+		    d.fail(null); // not sure!
+		}
+	    }
+	    this.listAllIdentityProviders.apply(this, arguments)
+		.then(cb, cb);
+	}
+	return d.promise();
+    }
     CAT.prototype.listIdentityProviders = function(idpid, lang) {
 	return this._qry2args('listIdentityProviders', 'id', idpid, lang);
     }
