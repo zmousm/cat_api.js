@@ -456,4 +456,113 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.sendLogo = function(idpid, lang) {
 	return this._qry2args('sendLogo', 'id', idpid, lang);
     }
+
+    CatIdentityProvider = function(cat, id, lang) {
+	this.cat = cat;
+	this.id = id;
+	this.lang = lang;
+    }
+    CatIdentityProvider.prototype.getRaw = function() {
+	var $idp = this;
+	var cb = function (ret) {
+	    if (!!ret && $idp.id in ret) {
+		return ret[$idp.id];
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(
+	    this.cat.listAllIdentityProvidersByID(this.lang)
+	).then(cb, cb);
+    }
+    CatIdentityProvider.prototype.getEntityID = function() {
+	var cb = function(ret) {
+	    if (!!ret && 'entityID' in ret) {
+		return ret.entityID;
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(this.getRaw()).then(cb, cb);
+    }
+    CatIdentityProvider.prototype.getCountry = function() {
+	var $idp = this;
+	var cb = function(ret) {
+	    if (!!ret && 'country' in ret) {
+		$idp.country = ret.country;
+		return ret.country;
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(this.getRaw()).then(cb, cb);
+    }
+    CatIdentityProvider.prototype.getIconID = function() {
+	var cb = function(ret) {
+	    if (!!ret && 'icon' in ret) {
+		return ret.icon;
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(this.getRaw()).then(cb, cb);
+    }
+    CatIdentityProvider.prototype.getTitle = function() {
+	var $idp = this;
+	var cb = function(ret) {
+	    if (!!ret && 'title' in ret) {
+		$idp.title = ret.title;
+		return ret.title;
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(this.getRaw()).then(cb, cb);
+    }
+    CatIdentityProvider.prototype.getGeo = function() {
+	var $idp = this;
+	var cb = function(ret) {
+	    if (!!ret && 'geo' in ret) {
+		$idp.geo = [];
+		ret.geo.forEach(function(cur, idx) {
+		    $idp.geo.push({
+			lat: parseFloat(cur.lat),
+			lon: parseFloat(cur.lon)
+		    });
+		});
+		return $idp.geo;
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(this.getRaw()).then(cb, cb);
+    }
+    CatIdentityProvider.prototype.getDistanceFrom = function(lat, lon) {
+	function deg2rad (deg) {
+	    return deg * ((1 / 180) * Math.PI);
+	}
+	var $idp = this;
+	var cb = function(ret) {
+	    if (ret instanceof Array) {
+		var res = [];
+		ret.forEach(function(cur, idx) {
+		    var lat2 = deg2rad(cur.lat);
+		    var lat1 = deg2rad(lat);
+		    var lon2 = deg2rad(cur.lon);
+		    var lon1 = deg2rad(lon);
+		    res.push(
+			Math.acos(
+			    (Math.sin(lat1) * Math.sin(lat2)) +
+				(Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1))
+			) * 6371
+		    );
+		});
+		return res;
+	    } else {
+		return [Infinity];
+	    }
+	}
+	return $.when(this.getGeo()).then(cb, cb);
+    }
+
 })(jQuery);
