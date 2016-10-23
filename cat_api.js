@@ -73,7 +73,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	this._defaults = {
 	    apiBase: cat_eduroam_org_api,
 	    apiBaseD: cat_eduroam_org_api,
-	    lang: 'en'
+	    lang: 'en',
+	    redirectDownload: true
 	}
         this.options = $.extend( {}, this._defaults, options);
 	this._cache = {};
@@ -87,6 +88,14 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     }
     CAT.prototype.setLang = function(lang) {
 	this.options.lang = lang;
+	return this.options.lang;
+    }
+    CAT.prototype.getDownloadRedirect = function() {
+	return this.options.redirectDownload;
+    }
+    CAT.prototype.setDownloadRedirect = function(redirectDownload) {
+	this.options.redirectDownload = redirectDownload;
+	return this.options.redirectDownload;
     }
     CAT.prototype.query = function(qro) {
 	if (!'action' in qro) {
@@ -98,7 +107,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 
 	var dtype = 'json';
-	var ep = qro.action == 'downloadInstaller' ?
+	var ep = qro.action == 'downloadInstaller' &&
+	    this.options.redirectDownload === true ?
 	    this.options.apiBaseD : this.options.apiBase;
 	var directUri = [ep, $.getQueryString(qro)].join('?');
 
