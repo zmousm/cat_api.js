@@ -122,16 +122,16 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	case 'downloadInstaller':
 	    // console.log("wlh", directUri);
 	    window.location.href = directUri;
-	    return $.Deferred()
-		.resolve(directUri)
-		.promise();
+	    return $.when().then(function(){
+		return directUri;
+	    });
 	    break;
 	case 'sendLogo':
 	    // console.log('imgSrc', directUri);
 	    // delete dtype;
-	    return $.Deferred()
-		.resolve($('<img>').attr('src', directUri))
-		.promise();
+	    return $.when().then(function(){
+		return $('<img>').attr('src', directUri);
+	    });
 	    break;
 	case 'deviceInfo':
 	    dtype = 'html';
@@ -152,9 +152,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	var $cat = this;
 	if (act in this._cache) {
 	    // return a (resolved) promise for consistency
-	    return $.Deferred()
-		.resolve(this._cache[act])
-		.promise();
+	    return $.when().then(function(){
+		return $cat._cache[act];
+	    });
 	} else {
 	    var qro = {
 		action: act,
@@ -198,9 +198,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	if (act in this._cache &&
 	    lang in this._cache[act]) {
 	    // return a (resolved) promise for consistency
-	    return $.Deferred()
-		.resolve(this._cache[act][lang])
-		.promise();
+	    return $.when().then(function(){
+		return $cat._cache[act][lang];
+	    });
 	} else {
 	    var qro = {
 		action: act
@@ -260,9 +260,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    idval in this._cache[act] &&
 	    lang in this._cache[act][idval]) {
 	    // return a (resolved) promise for consistency
-	    return $.Deferred()
-		.resolve(this._cache[act][idval][lang])
-		.promise();
+	    return $.when().then(function() {
+		return $cat._cache[act][idval][lang];
+	    });
 	} else {
 	    var qro = {
 		action: act
@@ -322,9 +322,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    id2val in this._cache[act][id1val] &&
 	    lang in this._cache[act][id1val][id2val]) {
 	    // return a (resolved) promise for consistency
-	    return $.Deferred()
-		.resolve(this._cache[act][id1val][id2val][lang])
-		.promise();
+	    return $.when().then(function() {
+		return $cat._cache[act][id1val][id2val][lang];
+	    });
 	} else {
 	    var qro = {
 		action: act
@@ -386,7 +386,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    lang = this.lang();
 	}
 	var $cat = this;
-	var d = $.Deferred();
+	var d = new $.Deferred();
 	if (act in this._cache &&
 	    lang in this._cache[act]) {
 	    // use a (resolved) promise for consistency
@@ -434,21 +434,20 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     }
     CAT.prototype.downloadInstaller = function(profid, osid, lang) {
 	var $cat = this;
-	var d = $.Deferred();
 	var cb = function(ret) {
 	    if (!!ret && 'link' in ret) {
 		var qs = ret.link.replace(/^.*\?/, '');
 		return $cat.query($.getQueryParameters(qs))
 		    .done(function(ret) {
-			d.resolve(ret);
+			return ret;
 		    });
 	    } else {
-		d.fail(ret);
+		return ret;
 	    }
 	}
-	this.generateInstaller.apply(this, arguments)
-	    .then(cb, cb);
-	return d.promise();
+	return $.when(
+	    this.generateInstaller.apply(this, arguments)
+	).then(cb, cb);
     }
     CAT.prototype.deviceInfo = function(profid, osid, lang) {
 	return this._qry3args('deviceInfo', 'profile', profid, 'id', osid, lang);
