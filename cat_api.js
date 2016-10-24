@@ -423,11 +423,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 	return d.promise();
     }
-    CAT.prototype.listIdentityProviders = function(idpid, lang) {
-	return this._qry2args('listIdentityProviders', 'id', idpid, lang);
+    CAT.prototype.listIdentityProviders = function(countryid, lang) {
+	return this._qry2args('listIdentityProviders', 'id', countryid, lang);
     }
-    CAT.prototype.listProfiles = function(countryid, lang) {
-	return this._qry2args('listProfiles', 'id', countryid, lang);
+    CAT.prototype.listProfiles = function(idpid, lang, sort) {
+	sort = sort ? 1 : 0;
+	return this._qry3args('listProfiles', 'id', idpid, 'sort', sort, lang);
     }
     CAT.prototype.profileAttributes = function(profid, lang) {
 	return this._qry2args('profileAttributes', 'id', profid, lang);
