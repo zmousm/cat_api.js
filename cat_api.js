@@ -591,8 +591,15 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    this.cat.listProfiles(this.idp, this.lang)
 	).then(cb, cb);
     }
-    CatProfile.prototype._getRawProp = function(prop) {
+    CatProfile.prototype.getRawAttributes = function() {
+	return this.cat.profileAttributes(this.id, this.lang);
+    }
+    CatProfile.prototype._getProp = function(rawFunc, prop) {
 	var cb = function(ret) {
+	    // console.log('getProp args:', arguments);
+	    if (typeof prop === 'undefined') {
+		return null;
+	    }
 	    if (!!ret &&
 		prop in ret &&
 		ret[prop]) {
@@ -602,11 +609,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    }
 	}
 	return $.when(
-	    this.getRaw()
+	    rawFunc.call(this)
 	).then(cb, cb);
-    }
-    CatProfile.prototype.getRawAttributes = function() {
-	return this.cat.profileAttributes(this.id, this.lang);
     }
     CatProfile.prototype.getProfileID = function() {
 	return this.id;
@@ -626,21 +630,21 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    }
 	}
 	return $.when(
-	    this._getRawProp('display'),
+	    this._getProp(this.getRaw, 'display'),
 	    idpObj.getDisplay()
 	).then(cb, cb);
     }
     CatProfile.prototype.getLocalEmail = function() {
-	return this._getRawProp('local_email');
+	return this._getProp(this.getRawAttributes, 'local_email');
     }
     CatProfile.prototype.getLocalPhone = function() {
-	return this._getRawProp('local_phone');
+	return this._getProp(this.getRawAttributes, 'local_phone');
     }
     CatProfile.prototype.getLocalUrl = function() {
-	return this._getRawProp('local_url');
+	return this._getProp(this.getRawAttributes, 'local_url');
     }
     CatProfile.prototype.getDescription = function() {
-	return this._getRawProp('description');
+	return this._getProp(this.getRawAttributes, 'description');
     }
     CatProfile.prototype.getIdentityProvider = function() {
 	return new CatIdentityProvider(this.cat, this.idp, this.lang);
