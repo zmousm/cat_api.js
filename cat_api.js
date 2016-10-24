@@ -248,7 +248,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
     }
     CAT.prototype._qry2args = function(act, idname, idval, lang) {
-	if (!act || !idname || !idval) {
+	if (!act ||
+	    !idname ||
+	    (typeof !idval === 'undefined')) {
 	    // throw something?
 	    return null;
 	}
@@ -309,7 +311,11 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
     }
     CAT.prototype._qry3args = function(act, id1name, id1val, id2name, id2val, lang) {
-	if (!act || !id1name || !id1val || !id2name || !id2val) {
+	if (!act ||
+	    !id1name ||
+	    (typeof !id1val === 'undefined') ||
+	    !id2name ||
+	    (typeof id2val === 'undefined')) {
 	    // throw something?
 	    return null;
 	}
