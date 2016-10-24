@@ -848,7 +848,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatDevice.prototype.getDisplay = function() {
 	var cb = function(is_profileredirect,
 			  device_display) {
-	    console.log('getDisplay args:', arguments);
+	    // console.log('getDisplay args:', arguments);
 	    if (is_profileredirect) {
 		return 'External';
 	    }
@@ -916,7 +916,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	var $dev = this;
 	var cb = function(device_redirect,
 			  device_display) {
-	    console.log('isProfileRedirect args:', arguments);
+	    // console.log('isProfileRedirect args:', arguments);
 	    return $dev.id == '0' && !!!device_display && device_redirect;
 	}
 	return $.when(
