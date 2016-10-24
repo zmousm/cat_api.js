@@ -700,6 +700,32 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     // CatProfile.prototype.isRedirect not implemented
 
     // ***** CAT Device *****
+    var USER_AGENTS = {
+	'vista': [/Windows NT 6[._]0/],
+	'w7': [/Windows NT 6[._]1/],
+	'w8': [/Windows NT 6[._][23]/],
+	'w10': [/Windows NT 10[._]/, /Windows NT 1[1-9]/, /Windows NT [2-9][0-9]/],
+	'mobileconfig-56': [/\((iPad|iPhone|iPod);.*OS [56]_/],
+	'mobileconfig': [/\((iPad|iPhone|iPod);.*OS [7-9]/, /\((iPad|iPhone|iPod);.*OS [1-9][0-9]/],
+	'apple_lion': [/Mac OS X 10[._]7/],
+	'apple_m_lion': [/Mac OS X 10[._]8/],
+	'apple_mav': [/Mac OS X 10[._]9/],
+	'apple_yos': [/Mac OS X 10[._]10/],
+	'apple_el_cap': [/Mac OS X 10[._]11/, /Mac OS X 10[._]1[2-9]/, /Mac OS X 10[._][2-9][0-9]/],
+	'linux': [/Linux(?!.*Android)/],
+	'chromeos': [/CrOS/],
+	'android43': [/Android 4[._]3/],
+	'android_kitkat': [/Android 4[._][4-9]/],
+	'android_lollipop': [/Android 5[._][0-9]/],
+	'android_marshmallow': [/Android 6[._][0-9]/, /Android [7-9]/, /Android [1-9][0-9]/],
+	0: [ new RegExp('') ],
+    }
+    var DEVICE_GROUPS = {
+	'Windows': [/^w[0-9]/, /^vista$/],
+	'Apple': [/^apple/, /^mobileconfig/],
+	'Android': [/^android/],
+	'Other': [ new RegExp('') ],
+    }
     CatDevice = function(cat, idpid, profid, devid, lang) {
 	this.cat = cat;
 	this.idp = idpid;
@@ -735,6 +761,47 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    CatProfile.getRawDevicesByProfileID(cat, profid, lang),
 	    cat.listDevices(profid, lang)
 	).then(cb, cb);
+    }
+    // not an instance method!
+    CatDevice.groupDevices = function(devices) {
+	var result = {},
+	    k;
+	for (k in DEVICE_GROUPS) {
+	    result[k] = [];
+	}
+	for (var idx=0; idx < devices.length; idx++) {
+	    if ('getStatus' in devices[idx] &&
+		devices[idx].getStatus() != 0) {
+		continue;
+	    }
+	    if (!('getGroup' in devices[idx])) {
+		continue;
+	    }
+	    var $group = devices[idx].getGroup();
+	    if ($group != null) {
+		result[k].push(devices[idx]);
+	    }
+	}
+	for (k in result) {
+	    if (!result[k].length) {
+		delete result[k];
+	    }
+	}
+	return result;
+    }
+    // not an instance method!
+    CatDevice.guessDeviceID = function(userAgent, deviceIDs) {
+	deviceIDs = deviceIDs instanceof Array ? deviceIDs : Object.keys(USER_AGENTS);
+	for (var idx=0; idx < deviceIDs.length; idx++) {
+	    var device_patterns = USER_AGENTS[deviceIDs[idx]] instanceof Array ?
+		USER_AGENTS[deviceIDs[idx]] : [];
+	    for (var regex in device_patterns) {
+		if (device_patterns[regex].test(userAgent)) {
+		    return deviceIDs[idx];
+		}
+	    }
+	}
+	return null;
     }
     CatDevice.prototype.getDeviceID = function() {
 	return this.id;
@@ -850,11 +917,24 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	var cb = function(device_redirect,
 			  device_display) {
 	    console.log('isProfileRedirect args:', arguments);
-	    return $dev.id === 0 && !!!device_display && device_redirect;
+	    return $dev.id == '0' && !!!device_display && device_redirect;
 	}
 	return $.when(
 	    this.getRedirect(),
 	    this._getProp(this.getRaw, 'display')
 	).then(cb, cb);
+    }
+    CatDevice.prototype.getGroup = function() {
+	for (var group in DEVICE_GROUPS) {
+	    var device_patterns = DEVICE_GROUPS[group] instanceof Array ?
+		DEVICE_GROUPS[group] : [];
+	    for (var regex in device_patterns) {
+		if (device_patterns[regex].test(this.getDeviceID())) {
+		    return group;
+		}
+	    }
+	}
+	// failsafe?
+	return 'Other';
     }
 })(jQuery);
