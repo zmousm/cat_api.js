@@ -568,4 +568,81 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	return $.when(this.getGeo()).then(cb, cb);
     }
 
+    // ***** CAT Profile *****
+    CatProfile = function(cat, idpid, profid, lang) {
+	this.cat = cat;
+	this.idp = idpid;
+	this.id = profid;
+	this.lang = lang;
+    }
+    CatProfile.prototype.getRaw = function() {
+	var $prof = this;
+	var cb = function (ret) {
+	    // console.log('prof.getRaw ret', ret);
+	    if (ret instanceof Array) {
+		return ret.find(function(cur, idx) {
+		    return !!cur && parseInt(cur.id) === $prof.id;
+		});
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(
+	    this.cat.listProfiles(this.idp, this.lang)
+	).then(cb, cb);
+    }
+    CatProfile.prototype._getRawProp = function(prop) {
+	var cb = function(ret) {
+	    if (!!ret &&
+		prop in ret &&
+		ret[prop]) {
+		return ret[prop];
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(
+	    this.getRaw()
+	).then(cb, cb);
+    }
+    CatProfile.prototype.getRawAttributes = function() {
+	return this.cat.profileAttributes(this.id, this.lang);
+    }
+    CatProfile.prototype.getProfileID = function() {
+	return this.id;
+    }
+    CatProfile.prototype.getIdpID = function() {
+	return this.idp;
+    }
+    CatProfile.prototype.getDisplay = function() {
+	var idpObj = this.getIdentityProvider();
+	var cb = function(prof_display, idp_display) {
+	    if (prof_display) {
+		return prof_display;
+	    } else if (idp_display) {
+		return idp_display;
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(
+	    this._getRawProp('display'),
+	    idpObj.getDisplay()
+	).then(cb, cb);
+    }
+    CatProfile.prototype.getLocalEmail = function() {
+	return this._getRawProp('local_email');
+    }
+    CatProfile.prototype.getLocalPhone = function() {
+	return this._getRawProp('local_phone');
+    }
+    CatProfile.prototype.getLocalUrl = function() {
+	return this._getRawProp('local_url');
+    }
+    CatProfile.prototype.getDescription = function() {
+	return this._getRawProp('description');
+    }
+    CatProfile.prototype.getIdentityProvider = function() {
+	return new CatIdentityProvider(this.cat, this.idp, this.lang);
+    }
 })(jQuery);
