@@ -78,6 +78,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
         this.options = $.extend( {}, this._defaults, options);
 	this._cache = {};
+	this._xhrcache = {};
     }
     CAT.prototype.apiBase = function(direct, newApiBase) {
 	if (typeof newApiBase !== 'undefined') {
@@ -144,11 +145,16 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    dtype = 'html';
 	    // fallthrough
 	default:
-	    return $.ajax({
-		dataType: dtype,
-		url: ep,
-		data: qro
-	    });
+	    if (directUri in this._xhrcache) {
+		return this._xhrcache[directUri];
+	    } else {
+		this._xhrcache[directUri] = $.ajax({
+		    dataType: dtype,
+		    url: ep,
+		    data: qro
+		});
+		return this._xhrcache[directUri];
+	    }
 	}
     }
     CAT.prototype._qry0args = function(act) {
