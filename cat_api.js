@@ -113,12 +113,19 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 
 	var dtype = 'json';
-	var ep = qro.action == 'downloadInstaller' &&
+	var ep = qro.action.startsWith('downloadInstaller') &&
 	    this.options.redirectDownload === true ?
 	    this.options.apiBaseD : this.options.apiBase;
 	var directUri = [ep, $.getQueryString(qro)].join('?');
 
 	switch (qro.action) {
+	case 'downloadInstallerUri':
+	    qro.action = qro.action.replace(/Uri$/, '');
+	    directUri = [ep, $.getQueryString(qro)].join('?');
+	    return $.when().then(function(){
+		return directUri;
+	    });
+	    break;
 	case 'downloadInstaller':
 	    // console.log("wlh", directUri);
 	    window.location.href = directUri;
@@ -439,12 +446,16 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.generateInstaller = function(profid, osid, lang) {
 	return this._qry3args('generateInstaller', 'profile', profid, 'id', osid, lang);
     }
-    CAT.prototype.downloadInstaller = function(profid, osid, lang) {
+    CAT.prototype.downloadInstaller = function(profid, osid, lang, dryrun) {
 	var $cat = this;
 	var cb = function(ret) {
 	    if (!!ret && 'link' in ret) {
-		var qs = ret.link.replace(/^.*\?/, '');
-		return $cat.query($.getQueryParameters(qs))
+		var qs = ret.link.replace(/^.*\?/, ''),
+		    qro = $.getQueryParameters(qs);
+		if (dryrun) {
+		    qro.action += 'Uri';
+		}
+		return $cat.query(qro)
 		    .done(function(ret) {
 			return ret;
 		    });
