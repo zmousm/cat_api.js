@@ -646,6 +646,22 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatProfile.prototype.getDescription = function() {
 	return this._getProp(this.getRawAttributes, 'description');
     }
+    CatProfile.prototype.hasSupport = function() {
+	var cb = function(local_email,
+			  local_phone,
+			  local_url) {
+	    // console.log('hasSupport args:', arguments);
+	    return local_email ||
+		local_phone ||
+		local_url ?
+		true : false;
+	}
+	return $.when(
+	    this.getLocalEmail(),
+	    this.getLocalPhone(),
+	    this.getLocalUrl()
+	).then(cb, cb);
+    }
     CatProfile.prototype.getIdentityProvider = function() {
 	return new CatIdentityProvider(this.cat, this.idp, this.lang);
     }
