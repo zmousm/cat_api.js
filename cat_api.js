@@ -718,7 +718,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	'android_kitkat': [/Android 4[._][4-9]/],
 	'android_lollipop': [/Android 5[._][0-9]/],
 	'android_marshmallow': [/Android 6[._][0-9]/, /Android [7-9]/, /Android [1-9][0-9]/],
-	0: [ new RegExp('') ],
+	'__undefined__': [ new RegExp('') ],
     }
     var DEVICE_GROUPS = {
 	'Windows': [/^w[0-9]/, /^vista$/],
@@ -917,7 +917,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	var cb = function(device_redirect,
 			  device_display) {
 	    // console.log('isProfileRedirect args:', arguments);
-	    return $dev.id == '0' && !!!device_display && device_redirect;
+	    return $dev.id == '__undefined__' && !!!device_display && device_redirect;
 	}
 	return $.when(
 	    this.getRedirect(),
