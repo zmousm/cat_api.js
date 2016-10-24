@@ -605,6 +605,16 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatProfile.prototype.getRawAttributes = function() {
 	return this.cat.profileAttributes(this.id, this.lang);
     }
+    // not an instance method!
+    CatProfile.getRawDevicesByProfileID = function(cat, profid, lang) {
+	// simulated 'this' obj, having only what _getProp() and getRawAttributes() access
+	var fake_this = { cat: cat,
+			  id: profid,
+			  lang: lang }
+	return CatProfile.prototype._getProp.call(fake_this,
+						  CatProfile.prototype.getRawAttributes,
+						  'devices');
+    }
     CatProfile.prototype._getProp = function(rawFunc, prop) {
 	var cb = function(ret) {
 	    // console.log('getProp args:', arguments);
