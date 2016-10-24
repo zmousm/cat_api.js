@@ -692,4 +692,163 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	return new CatIdentityProvider(this.cat, this.idp, this.lang);
     }
     // CatProfile.prototype.isRedirect not implemented
+
+    // ***** CAT Device *****
+    CatDevice = function(cat, idpid, profid, devid, lang) {
+	this.cat = cat;
+	this.idp = idpid;
+	this.profid = profid;
+	this.id = devid;
+	this.lang = lang;
+    }
+    // not an instance method!
+    CatDevice.loadDevices = function(cat, idpid, profid, lang) {
+	var cb = function(devices_augmented,
+			  devices) {
+	    // console.log('loadDevices.cb args:', arguments);
+	    var devs_array,
+		devs_obj = {};
+	    if (devices_augmented instanceof Array &&
+		devices_augmented.length) {
+		devs_array = devices_augmented;
+	    }
+	    else if (devices instanceof Array &&
+		     devices.length) {
+		devs_array = devices;
+	    } else {
+		return null;
+	    }
+	    for (var idx = 0; idx < devs_array.length; idx++) {
+		if ('id' in devs_array[idx]) {
+		    devs_obj[devs_array[idx].id] = devs_array[idx];
+		}
+	    }
+	    return devs_obj;
+	}
+	return $.when(
+	    CatProfile.getRawDevicesByProfileID(cat, profid, lang),
+	    cat.listDevices(profid, lang)
+	).then(cb, cb);
+    }
+    CatDevice.prototype.getDeviceID = function() {
+	return this.id;
+    }
+    CatDevice.prototype.getProfileID = function() {
+	return this.profid;
+    }
+    // CatProfile.prototype.getIdpID = function() {
+    // 	return this.idp;
+    // }
+    CatDevice.prototype.getRaw = function() {
+	var $dev = this;
+	var cb = function(ret) {
+	    // console.log('getRaw.cb args:', arguments, $dev.id);
+	    if (!!ret &&
+		$dev.id in ret) {
+		return ret[$dev.id];
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(
+	    CatDevice.loadDevices(this.cat, this.idp, this.profid, this.lang)
+	).then(cb, cb);
+    }
+    CatDevice.prototype._getProp = function(rawFunc, prop) {
+	var cb = function(ret) {
+	    // console.log('getProp args:', arguments);
+	    if (typeof prop === 'undefined') {
+		return null;
+	    }
+	    if (!!ret &&
+		prop in ret &&
+		ret[prop]) {
+		return ret[prop];
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(
+	    rawFunc.call(this)
+	).then(cb, cb);
+    }
+    CatDevice.prototype.getDisplay = function() {
+	var cb = function(is_profileredirect,
+			  device_display) {
+	    console.log('getDisplay args:', arguments);
+	    if (is_profileredirect) {
+		return 'External';
+	    }
+	    return device_display;
+	}
+	return $.when(
+	    this.isProfileRedirect(),
+	    this._getProp(this.getRaw, 'display')
+	).then(cb, cb);
+    }
+    CatDevice.prototype.getStatus = function() {
+	return this._getProp(this.getRaw, 'status');
+    }
+    CatDevice.prototype.getRedirect = function() {
+	return this._getProp(this.getRaw, 'redirect');
+    }
+    CatDevice.prototype.getEapCustomText = function() {
+	return this._getProp(this.getRaw, 'eap_customtext');
+    }
+    CatDevice.prototype.getDeviceCustomText = function() {
+	return this._getProp(this.getRaw, 'device_customtext');
+    }
+    CatDevice.prototype.getMessage = function() {
+	return this._getProp(this.getRaw, 'message');
+    }
+    CatDevice.prototype.getDeviceInfo = function() {
+	var cb = function(is_redirect,
+			  cat_deviceinfo) {
+	    // console.log('getDeviceInfo args:', arguments);
+	    if (is_redirect) {
+		// Seems like CAT doesn't answer this one on redirects...
+		return null;
+	    }
+	    return cat_deviceinfo;
+	}
+	return $.when(
+	    this.isRedirect(),
+	    this.cat.deviceInfo(this.profid, this.id, this.lang)
+	).then(cb, cb);
+    }
+    CatDevice.prototype.getDownloadLink = function() {
+	var cb = function(device_redirect,
+			  download_uri) {
+	    // console.log('getDownloadLink args:', arguments);
+	    if (!!device_redirect) {
+		// Seems like CAT doesn't answer this one on redirects...
+		return null;
+	    }
+	    return device_redirect || download_uri;
+	}
+	return $.when(
+	    this.getRedirect(),
+	    this.cat.downloadInstaller(this.profid, this.id, this.lang, true)
+	).then(cb, cb);
+    }
+    CatDevice.prototype.isRedirect = function() {
+	var cb = function(ret) {
+	    // console.log('isRedirect done args:', arguments);
+	    return !!ret;
+	}
+	return this._getProp(this.getRaw, 'redirect')
+	    .then(cb, cb);
+    }
+    CatDevice.prototype.isProfileRedirect = function() {
+	var $dev = this;
+	var cb = function(device_redirect,
+			  device_display) {
+	    console.log('isProfileRedirect args:', arguments);
+	    return $dev.id === 0 && !!!device_display && device_redirect;
+	}
+	return $.when(
+	    this.getRedirect(),
+	    this._getProp(this.getRaw, 'display')
+	).then(cb, cb);
+    }
 })(jQuery);
