@@ -634,6 +634,10 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    idpObj.getDisplay()
 	).then(cb, cb);
     }
+    /*
+     * omitting #hasLogo() and #getIdentityProviderName() because these
+     * belong in the IdentityProvider class.
+     */
     CatProfile.prototype.getLocalEmail = function() {
 	return this._getProp(this.getRawAttributes, 'local_email');
     }
@@ -646,6 +650,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatProfile.prototype.getDescription = function() {
 	return this._getProp(this.getRawAttributes, 'description');
     }
+    // CatProfile.prototype.getDevices not implemented
     CatProfile.prototype.hasSupport = function() {
 	var cb = function(local_email,
 			  local_phone,
@@ -665,4 +670,5 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatProfile.prototype.getIdentityProvider = function() {
 	return new CatIdentityProvider(this.cat, this.idp, this.lang);
     }
+    // CatProfile.prototype.isRedirect not implemented
 })(jQuery);
