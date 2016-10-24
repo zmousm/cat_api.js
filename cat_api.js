@@ -463,6 +463,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	return this._qry2args('sendLogo', 'id', idpid, lang);
     }
 
+    // ***** CAT Identity Provider *****
     CatIdentityProvider = function(cat, id, lang) {
 	this.cat = cat;
 	this.id = id;
@@ -492,10 +493,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	return $.when(this.getRaw()).then(cb, cb);
     }
     CatIdentityProvider.prototype.getCountry = function() {
-	var $idp = this;
 	var cb = function(ret) {
 	    if (!!ret && 'country' in ret) {
-		$idp.country = ret.country;
 		return ret.country;
 	    } else {
 		return null;
@@ -514,10 +513,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	return $.when(this.getRaw()).then(cb, cb);
     }
     CatIdentityProvider.prototype.getTitle = function() {
-	var $idp = this;
 	var cb = function(ret) {
 	    if (!!ret && 'title' in ret) {
-		$idp.title = ret.title;
 		return ret.title;
 	    } else {
 		return null;
@@ -525,18 +522,19 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 	return $.when(this.getRaw()).then(cb, cb);
     }
+    CatIdentityProvider.prototype.getDisplay = CatIdentityProvider.prototype.getTitle;
     CatIdentityProvider.prototype.getGeo = function() {
-	var $idp = this;
 	var cb = function(ret) {
-	    if (!!ret && 'geo' in ret) {
-		$idp.geo = [];
+	    if (!!ret && ('geo' in ret) &&
+		ret.geo instanceof Array) {
+		var geo = [];
 		ret.geo.forEach(function(cur, idx) {
-		    $idp.geo.push({
+		    geo.push({
 			lat: parseFloat(cur.lat),
 			lon: parseFloat(cur.lon)
 		    });
 		});
-		return $idp.geo;
+		return geo;
 	    } else {
 		return null;
 	    }
@@ -547,7 +545,6 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	function deg2rad (deg) {
 	    return deg * ((1 / 180) * Math.PI);
 	}
-	var $idp = this;
 	var cb = function(ret) {
 	    if (ret instanceof Array) {
 		var res = [];
