@@ -630,6 +630,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	return $.when(this.getGeo()).then(cb, cb);
     }
     CatIdentityProvider.prototype.getProfiles = function() {
+	// consider caching these objects
 	return CatProfile.getProfilesByIdPEntityID(this.cat, this.id, this.lang);
     }
     CatIdentityProvider.prototype.hasSearchMatch = function(search) {
@@ -766,6 +767,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	return this._getProp(this.getRawAttributes, 'description');
     }
     CatProfile.prototype.getDevices = function() {
+	// consider caching these objects
 	var $prof = this;
 	var cb = function(ret) {
 	    if (ret instanceof Array) {
