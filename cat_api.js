@@ -592,6 +592,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	this.id = profid;
 	this.lang = lang;
     }
+    // PHP (wrong?): getRawAttributes()
     CatProfile.prototype.getRaw = function() {
 	var $prof = this;
 	var cb = function (ret) {
@@ -608,6 +609,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    this.cat.listProfiles(this.idp, this.lang)
 	).then(cb, cb);
     }
+    // PHP (wrong?): getRaw()
     CatProfile.prototype.getRawAttributes = function() {
 	return this.cat.profileAttributes(this.id, this.lang);
     }
@@ -677,7 +679,45 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatProfile.prototype.getDescription = function() {
 	return this._getProp(this.getRawAttributes, 'description');
     }
-    // CatProfile.prototype.getDevices not implemented
+    CatProfile.prototype.getDevices = function() {
+	var $prof = this;
+	var cb = function(ret) {
+	    if (ret instanceof Array) {
+		var devices = {};
+		ret.forEach(function(cur, idx) {
+		    // console.log('cur.id', cur.id,
+		    // 		'!!cur.redirect', !!cur.redirect,
+		    // 		'("status" in cur)', ('status' in cur),
+		    // 		'cur.status >= 0', (cur.status >= 0),
+		    // 		'("options" in cur)', ('options' in cur),
+		    // 		'!!!cur.options.hidden', !!!cur.options.hidden,
+		    // 		'final',
+		    // 		((!!cur.redirect ||
+		    // 		  (('status' in cur) &&
+		    // 		   (cur.status >= 0))) &&
+		    // 		 (('options' in cur) &&
+		    // 		  !!!cur.options.hidden)));
+		    if ((!!cur.redirect ||
+			 (('status' in cur) &&
+			  (cur.status >= 0))) &&
+			(('options' in cur) &&
+			 !!!cur.options.hidden)) {
+			devices[cur.id] = new CatDevice($prof.cat,
+							$prof.idp,
+							$prof.id,
+							cur.id,
+							$prof.lang);
+		    }
+		});
+		return devices;
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(
+	    this._getProp(this.getRawAttributes, 'devices')
+	).then(cb, cb);
+    }
     CatProfile.prototype.hasSupport = function() {
 	var cb = function(local_email,
 			  local_phone,
@@ -697,7 +737,25 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatProfile.prototype.getIdentityProvider = function() {
 	return new CatIdentityProvider(this.cat, this.idp, this.lang);
     }
-    // CatProfile.prototype.isRedirect not implemented
+    CatProfile.prototype.isRedirect = function() {
+	var cb = function(ret) {
+	    var deferreds = [];
+	    for (var devid in ret) {
+		deferreds.push(ret[devid].isProfileRedirect());
+	    }
+	    var cb = function() {
+		var args = Array.prototype.slice.call(arguments);
+		return args.some(function(cur) {
+		    return cur;
+		});
+	    }
+	    return $.when.apply($, deferreds)
+		.then(cb, cb);
+	}
+	return $.when(
+	    this.getDevices()
+	).then(cb, cb);
+    }
 
     // ***** CAT Device *****
     var USER_AGENTS = {
