@@ -661,7 +661,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     // not an instance method!
     CatProfile.getProfilesByIdPEntityID = function(cat, idpid, lang) {
 	var cb = function(ret) {
-	    console.log('prof.getProfilesByIdPID ret', ret);
+	    // console.log('prof.getProfilesByIdPID ret', ret);
 	    if (ret instanceof Array) {
 		var profiles = {};
 		for (var idx=0; idx < ret.length; idx++) {
