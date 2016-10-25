@@ -396,48 +396,100 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.listLanguages = function() {
 	return this._qry0args('listLanguages');
     }
-    CAT.prototype.listAllIdentityProviders = function(lang) {
-	return this._qry1args('listAllIdentityProviders', lang);
-    }
-    CAT.prototype.listAllIdentityProvidersByID = function(lang) {
-	var act = 'listAllIdentityProvidersByID';
+    CAT.prototype._getIdentityProvidersByID = function() {
+	// console.log('_getIdentityProvidersByID arguments:', arguments);
+	var args = Array.prototype.slice.call(arguments),
+	    act = args.shift(),
+	    _act = act + 'ByID',
+	    countryid;
+	// console.log('_getIdentityProvidersByID args:', args, act);
+	var langIdx = 0;
+	switch (act) {
+	case 'listAllIdentityProviders':
+	    break;
+	case 'listIdentityProviders':
+	    countryid = args[0];
+	    langIdx += 1;
+	    break;
+	default:
+	    // throw something?
+	    return null
+	}
+	var lang = (langIdx in args) ? args[langIdx] : undefined;
 	if (typeof lang === 'undefined') {
 	    lang = this.lang();
 	}
 	var $cat = this;
 	var d = new $.Deferred();
 	if (act in this._cache &&
-	    lang in this._cache[act]) {
+	    lang in this._cache[_act]) {
 	    // use a (resolved) promise for consistency
-	    d.resolve(this._cache[act][lang]);
+	    d.resolve(this._cache[_act][lang]);
 	} else {
 	    var cb = function(ret) {
 		// console.log('cbID this:', this);
 		// console.log('cbID args:', arguments);
 		if (ret instanceof Array) {
-		    if (!(act in $cat._cache)) {
-			$cat._cache[act] = {};
+		    if (!(_act in $cat._cache)) {
+			$cat._cache[_act] = {};
 		    }
-		    if (!(lang in $cat._cache[act])) {
-			$cat._cache[act][lang] = {};
-		    }
-		    for (var idx = 0; idx < ret.length; idx++) {
-			if ('entityID' in ret[idx]) {
-			    $cat._cache[act][lang][ret[idx].entityID] = ret[idx];
+		    switch (act) {
+		    case 'listAllIdentityProviders':
+			if (!(lang in $cat._cache[_act])) {
+			    $cat._cache[_act][lang] = {};
 			}
+			for (var idx = 0; idx < ret.length; idx++) {
+			    // console.log('ret[' + idx + ']:', ret[idx]);
+			    if ('entityID' in ret[idx]) {
+				$cat._cache[_act][lang][ret[idx].entityID] = ret[idx];
+			    }
+			}
+			d.resolve($cat._cache[_act][lang]);
+			break;
+		    case 'listIdentityProviders':
+			if (typeof countryid === 'undefined') {
+			    d.fail(null) // not sure!
+			    break;
+			}
+			if (!(countryid in $cat._cache[_act])) {
+			    $cat._cache[_act][countryid] = {};
+			}
+			if (!(lang in $cat._cache[_act][countryid])) {
+			    $cat._cache[_act][countryid][lang] = {};
+			}
+			for (var idx = 0; idx < ret.length; idx++) {
+			    // console.log('ret[' + idx + ']:', ret[idx]);
+			    if ('id' in ret[idx]) {
+				$cat._cache[_act][countryid][lang][ret[idx].id] = ret[idx];
+			    }
+			}
+			d.resolve($cat._cache[_act][countryid][lang]);
+			break;
 		    }
-		    d.resolve($cat._cache[act][lang]);
 		} else {
 		    d.fail(null); // not sure!
 		}
 	    }
-	    this.listAllIdentityProviders.apply(this, arguments)
+	    this[act].apply(this, args)
 		.then(cb, cb);
 	}
 	return d.promise();
     }
+    CAT.prototype.listAllIdentityProviders = function(lang) {
+	return this._qry1args('listAllIdentityProviders', lang);
+    }
+    CAT.prototype.listAllIdentityProvidersByID = function(lang) {
+	var args = Array.prototype.slice.call(arguments);
+	args.unshift('listAllIdentityProviders');
+	return this._getIdentityProvidersByID.apply(this, args);
+    }
     CAT.prototype.listIdentityProviders = function(countryid, lang) {
 	return this._qry2args('listIdentityProviders', 'id', countryid, lang);
+    }
+    CAT.prototype.listIdentityProvidersByID = function(countryid, lang) {
+	var args = Array.prototype.slice.call(arguments);
+	args.unshift('listIdentityProviders');
+	return this._getIdentityProvidersByID.apply(this, args);
     }
     CAT.prototype.listProfiles = function(idpid, lang, sort) {
 	sort = sort ? 1 : 0;
