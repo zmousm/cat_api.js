@@ -632,6 +632,24 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatIdentityProvider.prototype.getProfiles = function() {
 	return CatProfile.getProfilesByIdPEntityID(this.cat, this.id, this.lang);
     }
+    CatIdentityProvider.prototype.hasSearchMatch = function(search) {
+	if (typeof search !== 'string') {
+	    return false;
+	}
+	var keywords = search.toLowerCase().trim().split(/[\s,]+/);
+	var cb = function(ret) {
+	    if (!!!ret) {
+		return false;
+	    }
+	    return keywords.reduce(function(carry, item) {
+		// console.log('reduce:', carry, item, (!item || ret.toLowerCase().indexOf(item) !== -1));
+		return carry && (!item || ret.toLowerCase().indexOf(item) !== -1);
+	    }, true);
+	}
+	return $.when(
+	    this.getTitle()
+	).then(cb, cb);
+    }
 
     // ***** CAT Profile *****
     CatProfile = function(cat, idpid, profid, lang) {
