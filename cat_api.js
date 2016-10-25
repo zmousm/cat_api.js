@@ -629,6 +629,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 	return $.when(this.getGeo()).then(cb, cb);
     }
+    CatIdentityProvider.prototype.getProfiles = function() {
+	return CatProfile.getProfilesByIdPEntityID(this.cat, this.id, this.lang);
+    }
 
     // ***** CAT Profile *****
     CatProfile = function(cat, idpid, profid, lang) {
@@ -636,6 +639,26 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	this.idp = idpid;
 	this.id = profid;
 	this.lang = lang;
+    }
+    // not an instance method!
+    CatProfile.getProfilesByIdPEntityID = function(cat, idpid, lang) {
+	var cb = function(ret) {
+	    console.log('prof.getProfilesByIdPID ret', ret);
+	    if (ret instanceof Array) {
+		var profiles = {};
+		for (var idx=0; idx < ret.length; idx++) {
+		    if (!!ret[idx] && ('id' in ret[idx]) && parseInt(ret[idx].id)) {
+			profiles[ret[idx].id] = new CatProfile(cat, idpid, ret[idx].id, lang);
+		    }
+		}
+		return profiles;
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(
+	    cat.listProfiles(idpid, lang)
+	).then(cb, cb);
     }
     // PHP (wrong?): getRawAttributes()
     CatProfile.prototype.getRaw = function() {
