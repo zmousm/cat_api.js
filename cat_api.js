@@ -499,53 +499,44 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    this.cat.listAllIdentityProvidersByID(this.lang)
 	).then(cb, cb);
     }
-    CatIdentityProvider.prototype.getEntityID = function() {
+    CatIdentityProvider.prototype._getProp = function(rawFunc, prop) {
 	var cb = function(ret) {
-	    if (!!ret && 'entityID' in ret) {
-		return ret.entityID;
+	    // console.log('getProp args:', arguments);
+	    if (typeof prop === 'undefined') {
+		return null;
+	    }
+	    if (!!ret &&
+		prop in ret &&
+		ret[prop]) {
+		return ret[prop];
 	    } else {
 		return null;
 	    }
 	}
-	return $.when(this.getRaw()).then(cb, cb);
+	return $.when(
+	    rawFunc.call(this)
+	).then(cb, cb);
+    }
+    CatIdentityProvider.prototype.getEntityID = function() {
+	return this._getProp(this.getRaw, 'entityID');
     }
     CatIdentityProvider.prototype.getCountry = function() {
-	var cb = function(ret) {
-	    if (!!ret && 'country' in ret) {
-		return ret.country;
-	    } else {
-		return null;
-	    }
-	}
-	return $.when(this.getRaw()).then(cb, cb);
+	return this._getProp(this.getRaw, 'country');
     }
     CatIdentityProvider.prototype.getIconID = function() {
-	var cb = function(ret) {
-	    if (!!ret && 'icon' in ret) {
-		return ret.icon;
-	    } else {
-		return null;
-	    }
-	}
-	return $.when(this.getRaw()).then(cb, cb);
+	return this._getProp(this.getRaw, 'icon');
     }
     CatIdentityProvider.prototype.getTitle = function() {
-	var cb = function(ret) {
-	    if (!!ret && 'title' in ret) {
-		return ret.title;
-	    } else {
-		return null;
-	    }
-	}
-	return $.when(this.getRaw()).then(cb, cb);
+	return this._getProp(this.getRaw, 'title');
     }
-    CatIdentityProvider.prototype.getDisplay = CatIdentityProvider.prototype.getTitle;
+    CatIdentityProvider.prototype.getDisplay = function() {
+	return this._getProp(this.getRaw, 'title');
+    }
     CatIdentityProvider.prototype.getGeo = function() {
 	var cb = function(ret) {
-	    if (!!ret && ('geo' in ret) &&
-		ret.geo instanceof Array) {
+	    if (ret instanceof Array) {
 		var geo = [];
-		ret.geo.forEach(function(cur, idx) {
+		ret.forEach(function(cur, idx) {
 		    geo.push({
 			lat: parseFloat(cur.lat),
 			lon: parseFloat(cur.lon)
@@ -556,7 +547,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		return null;
 	    }
 	}
-	return $.when(this.getRaw()).then(cb, cb);
+	return $.when(
+	    this._getProp(this.getRaw, 'geo')
+	).then(cb, cb);
     }
     CatIdentityProvider.prototype.getDistanceFrom = function(lat, lon) {
 	function deg2rad (deg) {
