@@ -10,6 +10,15 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	ctor.prototype = proto;
 	return new ctor();
     }
+    function flipObject(orig) {
+	var key, flip = {};
+	for (key in orig) {
+            if (orig.hasOwnProperty(key)) {
+		flip[orig[key]] = key;
+            }
+	}
+	return flip;
+    }
     $.getQueryParameters = function (str) {
 	var ret = {};
 	if (typeof str !== 'string') {
@@ -68,18 +77,145 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}).join('&') : '';
     }
 
+    // ***** CAT API *****
+    var API_TRANSLATIONS = {
+	2: {
+	    listLanguages:
+	    {
+		to: {},
+		from:
+		{
+		    id: 'lang'
+		}
+	    },
+	    listCountries:
+	    {
+		to: {},
+		from:
+		{
+		    id: 'federation'
+		}
+	    },
+	    listIdentityProviders:
+	    {
+		to:
+		{
+		    id: 'federation'
+		},
+		from:
+		{
+		    id: 'idp'
+		}
+	    },
+	    listAllIdentityProviders:
+	    {
+		to: {},
+		from:
+		{
+		    id: 'idp'
+		}
+	    },
+	    orderIdentityProviders:
+	    {
+		to:
+		{
+		    id: 'federation'
+		},
+		from:
+		{
+		    id: 'idp'
+		}
+	    },
+	    listProfiles:
+	    {
+		to:
+		{
+		    id: 'idp'
+		},
+		from:
+		{
+		    id: 'profile'
+		}
+	    },
+	    listDevices:
+	    {
+		to:
+		{
+		    id: 'profile'
+		},
+		from:
+		{
+		    id: 'device'
+		}
+	    },
+	    generateInstaller:
+	    {
+		to:
+		{
+		    id: 'device'
+		},
+		from: {}
+	    },
+	    downloadInstaller:
+	    {
+		to:
+		{
+		    id: 'device'
+		},
+		from: {}
+	    },
+	    profileAttributes:
+	    {
+		to:
+		{
+		    id: 'profile'
+		},
+		// nested devices obj
+		from:
+		{
+		    id: 'device'
+		}
+	    },
+	    sendLogo:
+	    {
+		to:
+		{
+		    id: 'idp'
+		},
+		from: {}
+	    },
+	    deviceInfo:
+	    {
+		to:
+		{
+		    id: 'device'
+		},
+		from: {}
+	    },
+	    detectOS:
+	    {
+		to: {},
+		from:
+		{
+		    id: 'device'
+		}
+	    }
+	}
+    }
     CAT = function(options) {
 	var cat_eduroam_org_api = 'https://cat.eduroam.org/user/API.php';
 	this._defaults = {
 	    apiBase: cat_eduroam_org_api,
 	    apiBaseD: cat_eduroam_org_api,
 	    lang: 'en',
-	    redirectDownload: true
+	    redirectDownload: true,
+	    api_version: 1
 	}
         this.options = $.extend( {}, this._defaults, options);
 	this._cache = {};
 	this._xhrcache = {};
     }
+    CAT.prototype.API_TRANSLATIONS = API_TRANSLATIONS;
     CAT.prototype.apiBase = function(direct, newApiBase) {
 	if (typeof newApiBase !== 'undefined') {
 	    if (direct === true) {
@@ -103,7 +239,50 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 	return this.options.redirectDownload;
     }
-
+    CAT.prototype.apiVersionGetTranslations = function(act, direction, reverse) {
+	var param_translations = this.API_TRANSLATIONS,
+	    api_version = this.options.api_version;
+	if ((api_version in param_translations) &&
+	    !!act && (act in param_translations[api_version]) &&
+	    !!direction && (direction in param_translations[api_version][act])) {
+	    return reverse ?
+		flipObject(param_translations[api_version][act][direction]) :
+		param_translations[api_version][act][direction];
+	} else {
+	    return {};
+	}
+    }
+    CAT.prototype.apiVersionGetTranslated = function(obj, act, direction, reverse) {
+	var args = Array.prototype.slice.call(arguments, 1),
+	    translations = this.apiVersionGetTranslations.apply(this, args),
+	    obj_keys = Object.keys(obj),
+	    obj_translated;
+	if (obj instanceof Array) {
+	    obj_translated = [];
+	} else {
+	    obj_translated = {};
+	}
+	for (var key in obj_keys) {
+	    key = obj_keys[key];
+	    // skip hasOwnProperty check on Arrays?
+	    if (!(obj instanceof Array) &&
+		!obj.hasOwnProperty(key)) {
+		continue;
+	    }
+	    if (obj_translated[key] instanceof Object) {
+		obj_translated[key] = this.apiVersionGetTranslated
+		    .apply(this, [obj_translated[key]].concat(args));
+	    } else {
+		obj_translated[key] = obj[key];
+	    }
+	    if (!(obj instanceof Array) &&
+		(key in translations)) {
+		obj_translated[translations[key]] = obj_translated[key];
+		delete obj_translated[key];
+	    }
+	}
+	return obj_translated;
+    }
     CAT.prototype.query = function(qro) {
 	if (!('action' in qro)) {
 	    // throw something?
@@ -113,6 +292,10 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    qro.lang = this.lang();
 	}
 
+	if (this.options.api_version !== 1) {
+	    qro.api_version = this.options.api_version;
+	    qro = this.apiVersionGetTranslated(qro, qro.action, 'to');
+	}
 	var dtype = 'json';
 	var ep = qro.action.startsWith('downloadInstaller') &&
 	    this.options.redirectDownload === true ?
@@ -151,7 +334,11 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		this._xhrcache[directUri] = $.ajax({
 		    dataType: dtype,
 		    url: ep,
-		    data: qro
+		    data: qro,
+		    beforeSend: function(jqxhr) {
+			jqxhr._cat_ep = ep;
+			jqxhr._cat_qro = qro;
+		    }
 		});
 		return this._xhrcache[directUri];
 	    }
@@ -189,8 +376,14 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    if (!!ret.tou) {
 			$cat._tou = ret.tou;
 		    }
-		    $cat._cache[act] = ret.data;
-		    return ret.data;
+		    var data = ret.data;
+		    var jqxhr = !!arguments[2] ? arguments[2] : {};
+		    if ($cat.options.api_version !== 1 &&
+			!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
+			data = $cat.apiVersionGetTranslated(data, jqxhr._cat_qro.action, 'from', true);
+		    }
+		    $cat._cache[act] = data;
+		    return data;
 		} else {
 		    return null;
 		}
@@ -245,8 +438,14 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    if (!!ret.tou) {
 			$cat._tou = ret.tou;
 		    }
-		    $cat._cache[act][lang] = ret.data;
-		    return ret.data;
+		    var data = ret.data;
+		    var jqxhr = !!arguments[2] ? arguments[2] : {};
+		    if ($cat.options.api_version !== 1 &&
+			!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
+			data = $cat.apiVersionGetTranslated(data, jqxhr._cat_qro.action, 'from', true);
+		    }
+		    $cat._cache[act][lang] = data;
+		    return data;
 		// }
 		// else if (typeof ret === 'string' ||
 		// 	 ret instanceof $) {
@@ -308,8 +507,14 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    if (!!ret.tou) {
 			$cat._tou = ret.tou;
 		    }
-		    $cat._cache[act][idval][lang] = ret.data;
-		    return ret.data;
+		    var data = ret.data;
+		    var jqxhr = !!arguments[2] ? arguments[2] : {};
+		    if ($cat.options.api_version !== 1 &&
+			!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
+			data = $cat.apiVersionGetTranslated(data, jqxhr._cat_qro.action, 'from', true);
+		    }
+		    $cat._cache[act][idval][lang] = data;
+		    return data;
 		}
 		else if (typeof ret === 'string' ||
 			 ret instanceof $) {
@@ -377,8 +582,14 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    if (!!ret.tou) {
 			$cat._tou = ret.tou;
 		    }
-		    $cat._cache[act][id1val][id2val][lang] = ret.data;
-		    return ret.data;
+		    var data = ret.data;
+		    var jqxhr = !!arguments[2] ? arguments[2] : {};
+		    if ($cat.options.api_version !== 1 &&
+			!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
+			data = $cat.apiVersionGetTranslated(data, jqxhr._cat_qro.action, 'from', true);
+		    }
+		    $cat._cache[act][id1val][id2val][lang] = data;
+		    return data;
 		}
 		else if (typeof ret === 'string' ||
 			 ret instanceof $) {
