@@ -918,25 +918,39 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	for (k in CatDevice.prototype.DEVICE_GROUPS) {
 	    result[k] = [];
 	}
+	var _devices = [],
+	    deferreds = [];
 	for (var idx=0; idx < devices.length; idx++) {
-	    if ('getStatus' in devices[idx] &&
-		devices[idx].getStatus() != 0) {
+	    if (!('getStatus' in devices[idx]) ||
+		!('getGroup' in devices[idx])) {
 		continue;
 	    }
-	    if (!('getGroup' in devices[idx])) {
-		continue;
-	    }
-	    var $group = devices[idx].getGroup();
-	    if ($group != null) {
-		result[k].push(devices[idx]);
-	    }
+	    _devices.push(devices[idx]);
+	    deferreds.push(devices[idx].getStatus());
 	}
-	for (k in result) {
-	    if (!result[k].length) {
-		delete result[k];
+	var cb = function() {
+	    var args = Array.prototype.slice.call(arguments);
+	    // console.log('cb groupDevices:', args);
+	    for (var idx=0; idx < _devices.length; idx++) {
+		var group = _devices[idx].getGroup(),
+		    status = args[idx];
+		// console.log('dev, status, group', _devices[idx], status, group);
+		if (status != 0) {
+		    continue;
+		}
+		if (group != null) {
+		    result[group].push(_devices[idx]);
+		}
 	    }
+	    for (k in result) {
+		if (!result[k].length) {
+		    delete result[k];
+		}
+	    }
+	    return result;
 	}
-	return result;
+	return $.when.apply($, deferreds)
+	    .then(cb, cb);
     }
     // not an instance method!
     CatDevice.guessDeviceID = function(userAgent, deviceIDs) {
