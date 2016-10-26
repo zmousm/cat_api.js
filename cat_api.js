@@ -558,8 +558,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		return null;
 	    }
 	    if (!!ret &&
-		prop in ret &&
-		ret[prop]) {
+		(prop in ret)) {
 		return ret[prop];
 	    } else {
 		return null;
@@ -717,8 +716,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		return null;
 	    }
 	    if (!!ret &&
-		prop in ret &&
-		ret[prop]) {
+		(prop in ret)) {
 		return ret[prop];
 	    } else {
 		return null;
@@ -983,8 +981,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		return null;
 	    }
 	    if (!!ret &&
-		prop in ret &&
-		ret[prop]) {
+		(prop in ret)) {
 		return ret[prop];
 	    } else {
 		return null;
