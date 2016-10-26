@@ -105,7 +105,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     }
 
     CAT.prototype.query = function(qro) {
-	if (!'action' in qro) {
+	if (!('action' in qro)) {
 	    // throw something?
 	    return null;
 	}
@@ -182,7 +182,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		}
 		if (!!this.dataType &&
 		    this.dataType == 'json') {
-		    if (!('status' in ret) || ret.status != 1 || !'data' in ret) {
+		    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
 			$cat._cache[act] = null;
 			return null;
 		    }
@@ -208,8 +208,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    lang = this.lang();
 	}
 	var $cat = this;
-	if (act in this._cache &&
-	    lang in this._cache[act]) {
+	if ((act in this._cache) &&
+	    (lang in this._cache[act])) {
 	    // return a (resolved) promise for consistency
 	    return $.when().then(function(){
 		return $cat._cache[act][lang];
@@ -238,7 +238,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 			$cat._cache[act][lang] = ret;
 			return ret;
 		    }
-		    if (!('status' in ret) || ret.status != 1 || !'data' in ret) {
+		    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
 			$cat._cache[act][lang] = null;
 			return null;
 		    }
@@ -271,9 +271,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    lang = this.lang();
 	}
 	var $cat = this;
-	if (act in this._cache &&
-	    idval in this._cache[act] &&
-	    lang in this._cache[act][idval]) {
+	if ((act in this._cache) &&
+	    (idval in this._cache[act]) &&
+	    (lang in this._cache[act][idval])) {
 	    // return a (resolved) promise for consistency
 	    return $.when().then(function() {
 		return $cat._cache[act][idval][lang];
@@ -301,7 +301,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		}
 		if (!!this.dataType &&
 		    this.dataType == 'json') {
-		    if (!('status' in ret) || ret.status != 1 || !'data' in ret) {
+		    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
 			$cat._cache[act][idval][lang] = null;
 			return null;
 		    }
@@ -336,10 +336,10 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    lang = this.lang();
 	}
 	var $cat = this;
-	if (act in this._cache &&
-	    id1val in this._cache[act] &&
-	    id2val in this._cache[act][id1val] &&
-	    lang in this._cache[act][id1val][id2val]) {
+	if ((act in this._cache) &&
+	    (id1val in this._cache[act]) &&
+	    (id2val in this._cache[act][id1val]) &&
+	    (lang in this._cache[act][id1val][id2val])) {
 	    // return a (resolved) promise for consistency
 	    return $.when().then(function() {
 		return $cat._cache[act][id1val][id2val][lang];
@@ -370,7 +370,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		}
 		if (!!this.dataType &&
 		    this.dataType == 'json') {
-		    if (!('status' in ret) || ret.status != 1 || !'data' in ret) {
+		    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
 			$cat._cache[act][id1val][id2val][lang] = null;
 			return null;
 		    }
@@ -421,8 +421,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 	var $cat = this;
 	var d = new $.Deferred();
-	if (act in this._cache &&
-	    lang in this._cache[_act]) {
+	if ((_act in this._cache) &&
+	    (lang in this._cache[_act])) {
 	    // use a (resolved) promise for consistency
 	    d.resolve(this._cache[_act][lang]);
 	} else {
@@ -507,7 +507,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.downloadInstaller = function(profid, osid, lang, dryrun) {
 	var $cat = this;
 	var cb = function(ret) {
-	    if (!!ret && 'link' in ret) {
+	    if (!!ret && ('link' in ret)) {
 		var qs = ret.link.replace(/^.*\?/, ''),
 		    qro = $.getQueryParameters(qs);
 		if (dryrun) {
@@ -541,7 +541,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatIdentityProvider.prototype.getRaw = function() {
 	var $idp = this;
 	var cb = function (ret) {
-	    if (!!ret && $idp.id in ret) {
+	    if (!!ret && ($idp.id in ret)) {
 		return ret[$idp.id];
 	    } else {
 		return null;
@@ -966,7 +966,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	var cb = function(ret) {
 	    // console.log('getRaw.cb args:', arguments, $dev.id);
 	    if (!!ret &&
-		$dev.id in ret) {
+		($dev.id in ret)) {
 		return ret[$dev.id];
 	    } else {
 		return null;
