@@ -880,6 +880,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	this.id = devid;
 	this.lang = lang;
     }
+    CatDevice.prototype.USER_AGENTS = USER_AGENTS;
+    CatDevice.prototype.DEVICE_GROUPS = DEVICE_GROUPS;
     // not an instance method!
     CatDevice.loadDevices = function(cat, idpid, profid, lang) {
 	var cb = function(devices_augmented,
@@ -913,7 +915,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CatDevice.groupDevices = function(devices) {
 	var result = {},
 	    k;
-	for (k in DEVICE_GROUPS) {
+	for (k in CatDevice.prototype.DEVICE_GROUPS) {
 	    result[k] = [];
 	}
 	for (var idx=0; idx < devices.length; idx++) {
@@ -938,10 +940,11 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     }
     // not an instance method!
     CatDevice.guessDeviceID = function(userAgent, deviceIDs) {
-	deviceIDs = deviceIDs instanceof Array ? deviceIDs : Object.keys(USER_AGENTS);
+	var UAs = CatDevice.prototype.USER_AGENTS;
+	deviceIDs = deviceIDs instanceof Array ? deviceIDs : Object.keys(UAs);
 	for (var idx=0; idx < deviceIDs.length; idx++) {
-	    var device_patterns = USER_AGENTS[deviceIDs[idx]] instanceof Array ?
-		USER_AGENTS[deviceIDs[idx]] : [];
+	    var device_patterns = UAs[deviceIDs[idx]] instanceof Array ?
+		UAs[deviceIDs[idx]] : [];
 	    for (var regex in device_patterns) {
 		if (device_patterns[regex].test(userAgent)) {
 		    return deviceIDs[idx];
@@ -1071,9 +1074,10 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	).then(cb, cb);
     }
     CatDevice.prototype.getGroup = function() {
-	for (var group in DEVICE_GROUPS) {
-	    var device_patterns = DEVICE_GROUPS[group] instanceof Array ?
-		DEVICE_GROUPS[group] : [];
+	var dev_groups = this.DEVICE_GROUPS;
+	for (var group in dev_groups) {
+	    var device_patterns = dev_groups[group] instanceof Array ?
+		dev_groups[group] : [];
 	    for (var regex in device_patterns) {
 		if (device_patterns[regex].test(this.getDeviceID())) {
 		    return group;
