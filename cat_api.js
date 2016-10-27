@@ -317,6 +317,13 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		return directUri;
 	    });
 	    break;
+	case 'sendLogoUri':
+	    qro.action = qro.action.replace(/Uri$/, '');
+	    directUri = [ep, $.getQueryString(qro)].join('?');
+	    return $.when().then(function(){
+		return directUri;
+	    });
+	    break;
 	case 'sendLogo':
 	    // console.log('imgSrc', directUri);
 	    // delete dtype;
@@ -739,8 +746,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.deviceInfo = function(profid, osid, lang) {
 	return this._qry3args('deviceInfo', 'profile', profid, 'id', osid, lang);
     }
-    CAT.prototype.sendLogo = function(idpid, lang) {
-	return this._qry2args('sendLogo', 'id', idpid, lang);
+    CAT.prototype.sendLogo = function(idpid, lang, dryrun) {
+	var act = 'sendLogo';
+	if (!!dryrun) {
+	    act += 'Uri';
+	}
+	return this._qry2args(act, 'id', idpid, lang);
     }
 
     // ***** CAT Identity Provider *****
@@ -787,6 +798,19 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     }
     CatIdentityProvider.prototype.getIconID = function() {
 	return this._getProp(this.getRaw, 'icon');
+    }
+    CatIdentityProvider.prototype.getIconURL = function() {
+	var $idp = this;
+	var cb = function(ret) {
+	    if (ret != null &&
+		parseInt(ret)) {
+		return $idp.cat.sendLogo(ret, this.lang, true);
+	    }
+	    return ret;
+	}
+	return $.when(
+	    this._getProp(this.getRaw, 'icon')
+	).then(cb, cb);
     }
     CatIdentityProvider.prototype.getTitle = function() {
 	return this._getProp(this.getRaw, 'title');
