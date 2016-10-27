@@ -823,10 +823,16 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    if (ret instanceof Array) {
 		var geo = [];
 		ret.forEach(function(cur, idx) {
-		    geo.push({
+		    var coord = {
 			lat: parseFloat(cur.lat),
 			lon: parseFloat(cur.lon)
-		    });
+		    }
+		    // necessary hack because CAT apparently may return duplicate coords!
+		    if (geo.find(function(cur) {
+			return (JSON.stringify(cur) === JSON.stringify(coord));
+		    }) === undefined) {
+			geo.push(coord);
+		    }
 		});
 		return geo;
 	    } else {
