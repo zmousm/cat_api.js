@@ -19,7 +19,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 	return flip;
     }
-    $.getQueryParameters = function (str) {
+    // copied (simplified) from:
+    // https://github.com/sindresorhus/query-string
+    function getQueryParameters(str) {
 	var ret = {};
 	if (typeof str !== 'string') {
 		return ret;
@@ -48,7 +50,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	});
 	return ret;
     }
-    $.getQueryString = function (obj) {
+    function getQueryString(obj) {
 	return obj ? Object.keys(obj).sort().map(function (key) {
 	    var val = obj[key];
 	    if (val === undefined) {
@@ -300,12 +302,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	var ep = qro.action.startsWith('downloadInstaller') &&
 	    this.options.redirectDownload === true ?
 	    this.options.apiBaseD : this.options.apiBase;
-	var directUri = [ep, $.getQueryString(qro)].join('?');
+	var directUri = [ep, getQueryString(qro)].join('?');
 
 	switch (qro.action) {
 	case 'downloadInstallerUri':
 	    qro.action = qro.action.replace(/Uri$/, '');
-	    directUri = [ep, $.getQueryString(qro)].join('?');
+	    directUri = [ep, getQueryString(qro)].join('?');
 	    return $.when().then(function(){
 		return directUri;
 	    });
@@ -319,7 +321,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    break;
 	case 'sendLogoUri':
 	    qro.action = qro.action.replace(/Uri$/, '');
-	    directUri = [ep, $.getQueryString(qro)].join('?');
+	    directUri = [ep, getQueryString(qro)].join('?');
 	    return $.when().then(function(){
 		return directUri;
 	    });
@@ -727,7 +729,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	var cb = function(ret) {
 	    if (!!ret && ('link' in ret)) {
 		var qs = ret.link.replace(/^.*\?/, ''),
-		    qro = $.getQueryParameters(qs);
+		    qro = getQueryParameters(qs);
 		if (dryrun) {
 		    qro.action += 'Uri';
 		}
