@@ -802,11 +802,16 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	return this._getProp(this.getRaw, 'icon');
     }
     CatIdentityProvider.prototype.getIconURL = function() {
-	var $idp = this;
+	var returnUrlOnly = true;
+	return this.getIcon(returnUrlOnly);
+    }
+    CatIdentityProvider.prototype.getIcon = function(returnUrl) {
+	var $idp = this,
+	    returnUrl = !!returnUrl;
 	var cb = function(ret) {
 	    if (ret != null &&
 		parseInt(ret)) {
-		return $idp.cat.sendLogo(ret, this.lang, true);
+		return $idp.cat.sendLogo(ret, this.lang, returnUrl);
 	    }
 	    return ret;
 	}
