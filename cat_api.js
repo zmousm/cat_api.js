@@ -876,9 +876,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 	return $.when(this.getGeo()).then(cb, cb);
     }
-    CatIdentityProvider.prototype.getProfiles = function() {
+    CatIdentityProvider.prototype.getProfiles = function(returnArray) {
 	// consider caching these objects
-	return CatProfile.getProfilesByIdPEntityID(this.cat, this.id, this.lang);
+	return CatProfile.getProfilesByIdPEntityID(this.cat, this.id, this.lang, returnArray);
     }
     CatIdentityProvider.prototype.hasSearchMatch = function(search) {
 	if (typeof search !== 'string') {
@@ -907,14 +907,19 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	this.lang = lang;
     }
     // not an instance method!
-    CatProfile.getProfilesByIdPEntityID = function(cat, idpid, lang) {
+    CatProfile.getProfilesByIdPEntityID = function(cat, idpid, lang, returnArray) {
 	var cb = function(ret) {
 	    // console.log('prof.getProfilesByIdPID ret', ret);
 	    if (ret instanceof Array) {
-		var profiles = {};
+		var profiles = !!!returnArray ? {} : [];
 		for (var idx=0; idx < ret.length; idx++) {
 		    if (!!ret[idx] && ('id' in ret[idx]) && parseInt(ret[idx].id)) {
-			profiles[ret[idx].id] = new CatProfile(cat, idpid, ret[idx].id, lang);
+			var prof = new CatProfile(cat, idpid, parseInt(ret[idx].id), lang);
+			if (!!!returnArray) {
+			    profiles[ret[idx].id] = prof;
+			} else {
+			    profiles.push(prof);
+			}
 		    }
 		}
 		return profiles;
