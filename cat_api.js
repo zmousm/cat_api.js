@@ -1051,10 +1051,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 			  local_phone,
 			  local_url) {
 	    // console.log('hasSupport args:', arguments);
-	    return local_email ||
-		local_phone ||
-		local_url ?
-		true : false;
+	    return !!local_email ||
+		!!local_phone ||
+		!!local_url;
 	}
 	return $.when(
 	    this.getLocalEmail(),
