@@ -1019,18 +1019,17 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    // 		'("status" in cur)', ('status' in cur),
 		    // 		'cur.status >= 0', (cur.status >= 0),
 		    // 		'("options" in cur)', ('options' in cur),
-		    // 		'!!!cur.options.hidden', !!!cur.options.hidden,
+		    // 		'(!("options" in cur) || !!!cur.options.hidden)',
+		    // 		(!("options" in cur) || !!!cur.options.hidden),
 		    // 		'final',
 		    // 		((!!cur.redirect ||
 		    // 		  (('status' in cur) &&
 		    // 		   (cur.status >= 0))) &&
-		    // 		 (('options' in cur) &&
-		    // 		  !!!cur.options.hidden)));
+		    // 		 (!("options" in cur) || !!!cur.options.hidden)));
 		    if ((!!cur.redirect ||
 			 (('status' in cur) &&
 			  (cur.status >= 0))) &&
-			(('options' in cur) &&
-			 !!!cur.options.hidden)) {
+			(!("options" in cur) || !!!cur.options.hidden)) {
 			devices[cur.id] = new CatDevice($prof.cat,
 							$prof.idp,
 							$prof.id,
@@ -1074,6 +1073,9 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    }
 	    var cb = function() {
 		var args = Array.prototype.slice.call(arguments);
+		// Return value: true if the callback function returns
+		// a truthy value for any array element; otherwise,
+		// false.
 		return args.some(function(cur) {
 		    return cur;
 		});
@@ -1322,8 +1324,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	var $dev = this;
 	var cb = function(device_redirect,
 			  device_display) {
-	    // console.log('isProfileRedirect args:', arguments);
-	    return $dev.id == '__undefined__' && !!!device_display && device_redirect;
+	    // '0' is the fake device-id returned by profileAttributes
+	    // for a profile-induced redirect -> we do need to match it
+	    // '__undefined__' is our fake device-id for the last
+	    // resort match in USER_AGENTS -> not sure if we need it here...
+	    return ($dev.id == '__undefined__' ||
+		    $dev.id === '0') && !!!device_display && device_redirect;
 	}
 	return $.when(
 	    this.getRedirect(),
