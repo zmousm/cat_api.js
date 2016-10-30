@@ -4,6 +4,47 @@
 var CAT, CatIdentityProvider, CatProfile, CatDevice;
 
 (function($){
+    // Polyfills :(
+    if (!Array.prototype.find) {
+	Object.defineProperty(Array.prototype, "find", {
+	    value: function(predicate) {
+		'use strict';
+		if (this == null) {
+		    throw new TypeError('Array.prototype.find called on null or undefined');
+		}
+		if (typeof predicate !== 'function') {
+		    throw new TypeError('predicate must be a function');
+		}
+		var list = Object(this);
+		var length = list.length >>> 0;
+		var thisArg = arguments[1];
+		var value;
+
+		for (var i = 0; i < length; i++) {
+		    value = list[i];
+		    if (predicate.call(thisArg, value, i, list)) {
+			return value;
+		    }
+		}
+		return undefined;
+	    }
+	});
+    }
+    if (!Object.keys) {
+	Object.keys = function(o) {
+	    if (o !== Object(o)) {
+		throw new TypeError('Object.keys called on a non-object');
+	    }
+	    var k = [],
+		p;
+	    for (p in o) {
+		if (Object.prototype.hasOwnProperty.call(o,p)) {
+		    k.push(p);
+		}
+	    }
+	    return k;
+	}
+    }
     // Inheritance: We'll fall back to this instead of a polyfill!
     function createObject(proto) {
 	function ctor() { }
