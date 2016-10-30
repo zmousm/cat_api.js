@@ -299,8 +299,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    qro = this.apiVersionGetTranslated(qro, qro.action, 'to');
 	}
 	var dtype = 'json';
-	var ep = qro.action.startsWith('downloadInstaller') &&
-	    this.options.redirectDownload === true ?
+	var ep = (qro.action.search(/downloadInstaller/) == 0 &&
+		  this.options.redirectDownload === true) ?
 	    this.options.apiBaseD : this.options.apiBase;
 	var directUri = [ep, getQueryString(qro)].join('?');
 
