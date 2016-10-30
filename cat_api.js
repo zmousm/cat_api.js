@@ -1214,27 +1214,29 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    result[k] = [];
 	}
 	var _devices = [],
-	    deferreds = [];
-	for (var idx=0; idx < devices.length; idx++) {
+	    deferreds = [],
+	    devices_keys = Object.keys(devices);
+	for (var idx in devices_keys) {
+	    idx = devices_keys[idx];
 	    if (!('getStatus' in devices[idx]) ||
 		!('getGroup' in devices[idx])) {
 		continue;
 	    }
-	    _devices.push(devices[idx]);
+	    _devices.push(idx);
 	    deferreds.push(devices[idx].getStatus());
 	}
 	var cb = function() {
 	    var args = Array.prototype.slice.call(arguments);
 	    // console.log('cb groupDevices:', args);
 	    for (var idx=0; idx < _devices.length; idx++) {
-		var group = _devices[idx].getGroup(),
+		var group = devices[_devices[idx]].getGroup(),
 		    status = args[idx];
-		// console.log('dev, status, group', _devices[idx], status, group);
+		// console.log('dev, status, group', devices[_devices[idx]], status, group);
 		if (status != 0) {
 		    continue;
 		}
 		if (group != null) {
-		    result[group].push(_devices[idx]);
+		    result[group].push(devices[_devices[idx]]);
 		}
 	    }
 	    for (k in result) {
