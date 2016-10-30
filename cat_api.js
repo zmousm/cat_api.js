@@ -774,10 +774,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		if (dryrun) {
 		    qro.action += 'Uri';
 		}
-		return $cat.query(qro)
-		    .done(function(ret) {
-			return ret;
-		    });
+		return $cat.query(qro);
 	    } else {
 		return ret;
 	    }
