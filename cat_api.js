@@ -1205,6 +1205,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     }
     // not an instance method!
     CatDevice.groupDevices = function(devices) {
+	if (!!!devices) {
+	    // return a (resolved) promise for consistency
+	    return $.when().then(function() {
+		return null;
+	    });
+	}
 	var result = {},
 	    k;
 	for (k in CatDevice.prototype.DEVICE_GROUPS) {
