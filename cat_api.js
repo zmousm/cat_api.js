@@ -250,6 +250,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	this._defaults = {
 	    apiBase: cat_eduroam_org_api,
 	    apiBaseD: cat_eduroam_org_api,
+	    touCallBack: undefined,
 	    lang: 'en',
 	    redirectDownload: true,
 	    api_version: 1
@@ -269,6 +270,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
     	return direct === true ?
 	    this.options.apiBaseD : this.options.apiBase;
+    }
+    CAT.prototype.touCallBack = function(newTouCallBack) {
+	if (typeof newTouCallBack !== 'undefined') {
+	    this.options.touCallBack = newTouCallBack;
+	}
+	return this.options.touCallBack;
     }
     CAT.prototype.lang = function(newLang) {
 	if (typeof newLang !== 'undefined') {
@@ -424,7 +431,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 			return null;
 		    }
 		    if (!!ret.tou) {
-			$cat._tou = ret.tou;
+			if (!('_tou' in $cat) || $cat._tou != ret.tou) {
+			    $cat._tou = ret.tou;
+			    if (typeof $cat.options.touCallBack === 'function') {
+				$cat.options.touCallBack(ret.tou);
+			    }
+			}
 		    }
 		    var data = ret.data;
 		    var jqxhr = !!arguments[2] ? arguments[2] : {};
@@ -486,7 +498,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 			return null;
 		    }
 		    if (!!ret.tou) {
-			$cat._tou = ret.tou;
+			if (!('_tou' in $cat) || $cat._tou != ret.tou) {
+			    $cat._tou = ret.tou;
+			    if (typeof $cat.options.touCallBack === 'function') {
+				$cat.options.touCallBack(ret.tou);
+			    }
+			}
 		    }
 		    var data = ret.data;
 		    var jqxhr = !!arguments[2] ? arguments[2] : {};
@@ -555,7 +572,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 			return null;
 		    }
 		    if (!!ret.tou) {
-			$cat._tou = ret.tou;
+			if (!('_tou' in $cat) || $cat._tou != ret.tou) {
+			    $cat._tou = ret.tou;
+			    if (typeof $cat.options.touCallBack === 'function') {
+				$cat.options.touCallBack(ret.tou);
+			    }
+			}
 		    }
 		    var data = ret.data;
 		    var jqxhr = !!arguments[2] ? arguments[2] : {};
@@ -630,7 +652,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 			return null;
 		    }
 		    if (!!ret.tou) {
-			$cat._tou = ret.tou;
+			if (!('_tou' in $cat) || $cat._tou != ret.tou) {
+			    $cat._tou = ret.tou;
+			    if (typeof $cat.options.touCallBack === 'function') {
+				$cat.options.touCallBack(ret.tou);
+			    }
+			}
 		    }
 		    var data = ret.data;
 		    var jqxhr = !!arguments[2] ? arguments[2] : {};
