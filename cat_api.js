@@ -1447,6 +1447,14 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    this.cat.downloadInstaller(this.profid, this.id, this.lang, true)
 	).then(cb, cb);
     }
+    CatDevice.prototype.isSigned = function() {
+	var cb = function(ret) {
+	    // console.log('isSigned done args:', arguments);
+	    return !!ret;
+	}
+	return this._getProp(this.getRaw, 'options', 'sign')
+	    .then(cb, cb);
+    }
     CatDevice.prototype.isRedirect = function() {
 	var cb = function(ret) {
 	    // console.log('isRedirect done args:', arguments);
