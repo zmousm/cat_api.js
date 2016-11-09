@@ -1431,20 +1431,24 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    this.isRedirect()
 	).then(cb, cb);
     }
-    CatDevice.prototype.getDownloadLink = function() {
-	var cb = function(device_redirect,
-			  download_uri) {
-	    // console.log('getDownloadLink args:', arguments);
-	    if (!!device_redirect) {
-		// Seems like CAT doesn't answer this one on redirects...
-		return null;
+    CatDevice.prototype.getDownload = function(dryrun) {
+	var $dev = this,
+	    dryrun = !!dryrun;
+	var cb = function(is_redirect,
+			  device_redirect) {
+	    // console.log('getDownload args:', arguments);
+	    if (is_redirect) {
+		return device_redirect;
 	    }
-	    return device_redirect || download_uri;
+	    return $dev.cat.downloadInstaller($dev.profid, $dev.id, $dev.lang, dryrun);
 	}
 	return $.when(
-	    this.getRedirect(),
-	    this.cat.downloadInstaller(this.profid, this.id, this.lang, true)
+	    this.isRedirect(),
+	    this.getRedirect()
 	).then(cb, cb);
+    }
+    CatDevice.prototype.getDownloadLink = function() {
+	return this.getDownload(true);
     }
     CatDevice.prototype.isSigned = function() {
 	var cb = function(ret) {
