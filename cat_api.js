@@ -1363,7 +1363,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    CatDevice.loadDevices(this.cat, this.idp, this.profid, this.lang)
 	).then(cb, cb);
     }
-    CatDevice.prototype._getProp = function(rawFunc, prop) {
+    CatDevice.prototype._getProp = function(rawFunc, prop, propNested) {
 	var cb = function(ret) {
 	    // console.log('getProp args:', arguments);
 	    if (typeof prop === 'undefined') {
@@ -1371,7 +1371,15 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    }
 	    if (!!ret &&
 		(prop in ret)) {
-		return ret[prop];
+		if (typeof propNested === 'undefined') {
+		    return ret[prop];
+		}
+		if (!!ret[prop] &&
+		    (propNested in ret[prop])) {
+		    return ret[prop][propNested];
+		} else {
+		    return null;
+		}
 	    } else {
 		return null;
 	    }
