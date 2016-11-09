@@ -1235,6 +1235,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	'Windows': [/^w[0-9]/, /^vista$/],
 	'Apple': [/^apple/, /^mobileconfig/],
 	'Android': [/^android/],
+	'Linux': [/^linux/],
 	'Other': [ new RegExp('') ],
     }
     CatDevice = function(cat, idpid, profid, devid, lang) {
