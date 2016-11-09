@@ -1418,18 +1418,17 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	return this._getProp(this.getRaw, 'message');
     }
     CatDevice.prototype.getDeviceInfo = function() {
-	var cb = function(is_redirect,
-			  cat_deviceinfo) {
+	var $dev = this;
+	var cb = function(is_redirect) {
 	    // console.log('getDeviceInfo args:', arguments);
 	    if (is_redirect) {
 		// Seems like CAT doesn't answer this one on redirects...
 		return null;
 	    }
-	    return cat_deviceinfo;
+	    return $dev.cat.deviceInfo($dev.profid, $dev.id, $dev.lang);
 	}
 	return $.when(
-	    this.isRedirect(),
-	    this.cat.deviceInfo(this.profid, this.id, this.lang)
+	    this.isRedirect()
 	).then(cb, cb);
     }
     CatDevice.prototype.getDownloadLink = function() {
