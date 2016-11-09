@@ -246,10 +246,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
     }
     CAT = function(options) {
-	var cat_eduroam_org_api = 'https://cat.eduroam.org/user/API.php';
+	var cat_eduroam_org_api = 'https://cat.eduroam.org/user/API.php',
+	    cat_eduroam_org_ldlbase = cat_eduroam_org_api.replace('user/API.php', '');
 	this._defaults = {
 	    apiBase: cat_eduroam_org_api,
 	    apiBaseD: cat_eduroam_org_api,
+	    localDownloadBase: cat_eduroam_org_ldlbase,
 	    touCallBack: undefined,
 	    lang: 'en',
 	    redirectDownload: true,
@@ -270,6 +272,12 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
     	return direct === true ?
 	    this.options.apiBaseD : this.options.apiBase;
+    }
+    CAT.prototype.localDownloadBase = function(newLDlBase) {
+	if (typeof newLDlBase !== 'undefined') {
+	    this.options.localDownloadBase = newLDlBase;
+	}
+	return this.options.localDownloadBase;
     }
     CAT.prototype.touCallBack = function(newTouCallBack) {
 	if (typeof newTouCallBack !== 'undefined') {
