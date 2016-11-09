@@ -692,6 +692,27 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.listLanguages = function() {
 	return this._qry0args('listLanguages');
     }
+    CAT.prototype.listLanguagesByID = function() {
+	return this._getEntitiesByID('listLanguages');
+    }
+    CAT.prototype.getLanguageDisplay = function(lang) {
+	if (typeof lang === 'undefined') {
+	    lang = this.lang();
+	}
+	var cb = function(languages_by_id) {
+	    console.log('languages_by_id:', languages_by_id, lang);
+	    if (!!languages_by_id &&
+		(lang in languages_by_id) &&
+		('display' in languages_by_id[lang])) {
+		return languages_by_id[lang].display;
+	    } else {
+		return null;
+	    }
+	}
+	return $.when(
+	    this.listLanguagesByID()
+	).then(cb, cb);
+    }
     CAT.prototype._getEntitiesByID = function() {
 	// console.log('_getIdentityProvidersByID arguments:', arguments);
 	var args = Array.prototype.slice.call(arguments),
