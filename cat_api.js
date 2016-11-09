@@ -692,7 +692,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.listLanguages = function() {
 	return this._qry0args('listLanguages');
     }
-    CAT.prototype._getIdentityProvidersByID = function() {
+    CAT.prototype._getEntitiesByID = function() {
 	// console.log('_getIdentityProvidersByID arguments:', arguments);
 	var args = Array.prototype.slice.call(arguments),
 	    act = args.shift(),
@@ -701,6 +701,8 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	// console.log('_getIdentityProvidersByID args:', args, act);
 	var langIdx = 0;
 	switch (act) {
+	case 'listLanguages':
+	    break;
 	case 'listAllIdentityProviders':
 	    break;
 	case 'listIdentityProviders':
@@ -730,6 +732,20 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 			$cat._cache[_act] = {};
 		    }
 		    switch (act) {
+		    case 'listLanguages':
+			// no lang parameter for listLanguages, but
+			// we need to use it for _cache lookups
+			if (!(lang in $cat._cache[_act])) {
+			    $cat._cache[_act][lang] = {};
+			}
+			for (var idx = 0; idx < ret.length; idx++) {
+			    // console.log('ret[' + idx + ']:', ret[idx]);
+			    if ('id' in ret[idx]) {
+				$cat._cache[_act][lang][ret[idx].id] = ret[idx];
+			    }
+			}
+			d.resolve($cat._cache[_act][lang]);
+			break;
 		    case 'listAllIdentityProviders':
 			if (!(lang in $cat._cache[_act])) {
 			    $cat._cache[_act][lang] = {};
@@ -777,7 +793,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.listAllIdentityProvidersByID = function(lang) {
 	var args = Array.prototype.slice.call(arguments);
 	args.unshift('listAllIdentityProviders');
-	return this._getIdentityProvidersByID.apply(this, args);
+	return this._getEntitiesByID.apply(this, args);
     }
     CAT.prototype.listIdentityProviders = function(countryid, lang) {
 	return this._qry2args('listIdentityProviders', 'id', countryid, lang);
@@ -785,7 +801,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
     CAT.prototype.listIdentityProvidersByID = function(countryid, lang) {
 	var args = Array.prototype.slice.call(arguments);
 	args.unshift('listIdentityProviders');
-	return this._getIdentityProvidersByID.apply(this, args);
+	return this._getEntitiesByID.apply(this, args);
     }
     CAT.prototype.listProfiles = function(idpid, lang, sort) {
 	sort = sort ? 1 : 0;
