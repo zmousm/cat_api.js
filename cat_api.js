@@ -1223,20 +1223,20 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	'apple_sierra': [/Mac OS X 10[._]1[2-9]/, /Mac OS X 10[._][2-9][0-9]/],
 	'linux': [/Linux(?!.*Android)/],
 	'chromeos': [/CrOS/],
-	'android43': [/Android 4[._]3/],
+	'android_43': [/Android 4[._]3/],
 	'android_kitkat': [/Android 4[._][4-9]/],
 	'android_lollipop': [/Android 5[._][0-9]/],
 	'android_marshmallow': [/Android 6[._][0-9]/],
 	'android_nougat': [/Android [7-9]/, /Android [1-9][0-9]/],
 	'android_legacy': [/Android/],
-	'__undefined__': [ new RegExp('') ],
+	'__undefined__': [ new RegExp('') ]
     }
     var DEVICE_GROUPS = {
 	'Windows': [/^w[0-9]/, /^vista$/],
 	'Apple': [/^apple/, /^mobileconfig/],
 	'Android': [/^android/],
 	'Linux': [/^linux/],
-	'Other': [ new RegExp('') ],
+	'Other': [ new RegExp('') ]
     }
     CatDevice = function(cat, idpid, profid, devid, lang) {
 	this.cat = cat;
