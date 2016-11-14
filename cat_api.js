@@ -255,6 +255,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    touCallBack: undefined,
 	    lang: 'en',
 	    redirectDownload: true,
+	    redirectLocateUser: true,
 	    api_version: 1
 	}
         this.options = $.extend( {}, this._defaults, options);
@@ -355,8 +356,10 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    qro = this.apiVersionGetTranslated(qro, qro.action, 'to');
 	}
 	var dtype = 'json';
-	var ep = (qro.action.search(/downloadInstaller/) == 0 &&
-		  this.options.redirectDownload === true) ?
+	var ep = ((qro.action.search(/downloadInstaller/) == 0 &&
+		   this.options.redirectDownload === true) ||
+		  (qro.action == 'locateUser' &&
+		   this.options.redirectLocateUser === true)) ?
 	    this.options.apiBaseD : this.options.apiBase;
 	var directUri = [ep, getQueryString(qro)].join('?');
 
@@ -912,6 +915,28 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    act += 'Uri';
 	}
 	return this._qry2args(act, 'id', idpid, lang);
+    }
+    CAT.prototype.locateUser = function() {
+	return this._qry0args('locateUser');
+    }
+    CAT.prototype.detectOS = function() {
+	return this._qry0args('detectOS');
+    }
+    CAT.prototype.orderIdentityProviders = function(countryid, geo, lang) {
+	var geo_encoded;
+	if (typeof geo === 'object' &&
+	    ('lat' in geo) && parseFloat(geo.lat) &&
+	    ('lon' in geo) && parseFloat(geo.lon)) {
+	    geo_encoded = geo.lat + ':' + geo.lon;
+	}
+	return typeof geo_encoded !== 'undefined' ?
+	    this._qry3args('orderIdentityProviders',
+			   'id', countryid,
+			   'location', geo_encoded,
+			   lang) :
+	    this._qry2args('orderIdentityProviders',
+			   'id', countryid,
+			   lang);
     }
 
     // ***** CAT Identity Provider *****
