@@ -748,7 +748,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    lang = this.lang();
 	}
 	var cb = function(languages_by_id) {
-	    console.log('languages_by_id:', languages_by_id, lang);
+	    // console.log('languages_by_id:', languages_by_id, lang);
 	    if (!!languages_by_id &&
 		(lang in languages_by_id) &&
 		('display' in languages_by_id[lang])) {
@@ -780,7 +780,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    break;
 	default:
 	    // throw something?
-	    return null
+	    return null;
 	}
 	var lang = (langIdx in args) ? args[langIdx] : undefined;
 	if (typeof lang === 'undefined') {
