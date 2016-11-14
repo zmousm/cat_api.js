@@ -434,6 +434,18 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		}
 		if (!!this.dataType &&
 		    this.dataType == 'json') {
+		    if (ret.status === 'ok') {
+			ret.status = 1;
+			if (!('data' in ret)) {
+			    ret.data = {};
+			    for (var k in ret) {
+				if (k != 'status' && k != 'data' &&
+				    ret.hasOwnProperty(k)) {
+				    ret.data[k] = ret[k];
+				}
+			    }
+			}
+		    }
 		    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
 			$cat._cache[act] = null;
 			return null;
@@ -500,6 +512,18 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    if (ret instanceof Array) {
 			$cat._cache[act][lang] = ret;
 			return ret;
+		    }
+		    if (ret.status === 'ok') {
+			ret.status = 1;
+			if (!('data' in ret)) {
+			    ret.data = {};
+			    for (var k in ret) {
+				if (k != 'status' && k != 'data' &&
+				    ret.hasOwnProperty(k)) {
+				    ret.data[k] = ret[k];
+				}
+			    }
+			}
 		    }
 		    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
 			$cat._cache[act][lang] = null;
@@ -575,6 +599,18 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		}
 		if (!!this.dataType &&
 		    this.dataType == 'json') {
+		    if (ret.status === 'ok') {
+			ret.status = 1;
+			if (!('data' in ret)) {
+			    ret.data = {};
+			    for (var k in ret) {
+				if (k != 'status' && k != 'data' &&
+				    ret.hasOwnProperty(k)) {
+				    ret.data[k] = ret[k];
+				}
+			    }
+			}
+		    }
 		    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
 			$cat._cache[act][idval][lang] = null;
 			return null;
@@ -655,6 +691,18 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		}
 		if (!!this.dataType &&
 		    this.dataType == 'json') {
+		    if (ret.status === 'ok') {
+			ret.status = 1;
+			if (!('data' in ret)) {
+			    ret.data = {};
+			    for (var k in ret) {
+				if (k != 'status' && k != 'data' &&
+				    ret.hasOwnProperty(k)) {
+				    ret.data[k] = ret[k];
+				}
+			    }
+			}
+		    }
 		    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
 			$cat._cache[act][id1val][id2val][lang] = null;
 			return null;
