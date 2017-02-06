@@ -3,7 +3,7 @@
 // exported
 var CAT, CatIdentityProvider, CatProfile, CatDevice;
 
-(function($){
+var ConfigurationAssistantTool = (function($){
     // Polyfill
     if (!Array.prototype.find) {
 	Object.defineProperty(Array.prototype, "find", {
@@ -1605,5 +1605,33 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	}
 	// failsafe?
 	return 'Other';
+    }
+
+    // module constructor
+    return function() {
+	var api_instance = CAT.new_with_array(arguments);
+	function prepend_api() {
+	    var args = Array.from_arguments.apply(null, arguments);
+	    args.unshift(this.API);
+	    return args;
+	}
+	return {
+	    API: api_instance,
+	    reset_api: function() {
+		return this.API = CAT.new_with_array(arguments);
+	    },
+	    IdentityProvider: function() {
+		return CatIdentityProvider
+		    .new_with_array(prepend_api.apply(this, arguments));
+	    },
+	    Profile: function() {
+		return CatProfile
+		    .new_with_array(prepend_api.apply(this, arguments));
+	    },
+	    Device: function() {
+		return CatDevice
+		    .new_with_array(prepend_api.apply(this, arguments));
+	    }
+	}
     }
 })(jQuery);
