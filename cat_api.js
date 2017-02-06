@@ -258,7 +258,7 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 	    redirectLocateUser: true,
 	    api_version: 1
 	}
-        this.options = $.extend( {}, this._defaults, options);
+        this.options = $.extend({}, this._defaults, options);
 	this._cache = {};
 	this._xhrcache = {};
     }
@@ -465,7 +465,10 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    var jqxhr = !!arguments[2] ? arguments[2] : {};
 		    if ($cat.options.api_version !== 1 &&
 			!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-			data = $cat.apiVersionGetTranslated(data, jqxhr._cat_qro.action, 'from', true);
+			data = $cat.apiVersionGetTranslated(data,
+							    jqxhr._cat_qro.action,
+							    'from',
+							    true);
 		    }
 		    $cat._cache[act] = data;
 		    return data;
@@ -544,7 +547,10 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    var jqxhr = !!arguments[2] ? arguments[2] : {};
 		    if ($cat.options.api_version !== 1 &&
 			!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-			data = $cat.apiVersionGetTranslated(data, jqxhr._cat_qro.action, 'from', true);
+			data = $cat.apiVersionGetTranslated(data,
+							    jqxhr._cat_qro.action,
+							    'from',
+							    true);
 		    }
 		    $cat._cache[act][lang] = data;
 		    return data;
@@ -630,7 +636,10 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    var jqxhr = !!arguments[2] ? arguments[2] : {};
 		    if ($cat.options.api_version !== 1 &&
 			!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-			data = $cat.apiVersionGetTranslated(data, jqxhr._cat_qro.action, 'from', true);
+			data = $cat.apiVersionGetTranslated(data,
+							    jqxhr._cat_qro.action,
+							    'from',
+							    true);
 		    }
 		    $cat._cache[act][idval][lang] = data;
 		    return data;
@@ -722,7 +731,10 @@ var CAT, CatIdentityProvider, CatProfile, CatDevice;
 		    var jqxhr = !!arguments[2] ? arguments[2] : {};
 		    if ($cat.options.api_version !== 1 &&
 			!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-			data = $cat.apiVersionGetTranslated(data, jqxhr._cat_qro.action, 'from', true);
+			data = $cat.apiVersionGetTranslated(data,
+							    jqxhr._cat_qro.action,
+							    'from',
+							    true);
 		    }
 		    $cat._cache[act][id1val][id2val][lang] = data;
 		    return data;
