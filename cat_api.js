@@ -1,33 +1,36 @@
-;
-
-
-var ConfigurationAssistantTool = (function($){
-    // Polyfill
-    if (!Array.prototype.find) {
-	Object.defineProperty(Array.prototype, "find", {
-	    value: function(predicate) {
-		'use strict';
-		if (this == null) {
-		    throw new TypeError('Array.prototype.find called on null or undefined');
-		}
-		if (typeof predicate !== 'function') {
-		    throw new TypeError('predicate must be a function');
-		}
-		var list = Object(this);
-		var length = list.length >>> 0;
-		var thisArg = arguments[1];
-		var value;
-
-		for (var i = 0; i < length; i++) {
-		    value = list[i];
-		    if (predicate.call(thisArg, value, i, list)) {
-			return value;
-		    }
-		}
-		return undefined;
-	    }
+;(function(root, factory) {
+    var deps = ['jquery', 'querystring',
+		// polyfills
+		'Array.prototype.find', 'Array.prototype.reduce',
+		'Array.prototype.forEach', 'String.prototype.trim',
+		'Array.isArray', 'Object.keys'];
+    if (typeof define === 'function' && define.amd) {
+	define(deps, function() {
+	    // return (root.ConfigurationAssistantTool = factory.apply(root, arguments));
+	    return factory.apply(root, arguments);
 	});
+    } else if (typeof module === 'object' && module.exports) {
+	// var req_deps = deps.map(function(dep) {
+	//     return require(dep);
+	// });
+	var req_deps = (function() {
+	    var deps = [];
+	    for (var i = 0; i < arguments.length; i++) {
+		deps.push(require(dep));
+	    }
+	    return deps;
+	}.apply(null, deps));
+	// module.exports = (root.ConfigurationAssistantTool = factory.apply(root, req_deps));
+	module.exports = factory.apply(root, req_deps);
+    } else {
+	root.ConfigurationAssistantTool = factory.call(root, root.jQuery);
     }
+
+}(this, function($, queryString) {
+    'use strict';
+
+    var root = this;
+
     // Arguments -> Array converter that (supposedly) does not kill optimizations
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments
     // However this still means passing the Arguments object around...
@@ -36,22 +39,6 @@ var ConfigurationAssistantTool = (function($){
 	    return (arguments.length === 1 ?
 		    [arguments[0]] :
 		    Array.apply(null, arguments));
-	}
-    }
-    // Polyfill
-    if (!Object.keys) {
-	Object.keys = function(o) {
-	    if (o !== Object(o)) {
-		throw new TypeError('Object.keys called on a non-object');
-	    }
-	    var k = [],
-		p;
-	    for (p in o) {
-		if (Object.prototype.hasOwnProperty.call(o,p)) {
-		    k.push(p);
-		}
-	    }
-	    return k;
 	}
     }
     // The equivalent for (non-working):
@@ -90,65 +77,23 @@ var ConfigurationAssistantTool = (function($){
 	}
 	return flip;
     }
-    // copied (simplified) from:
-    // https://github.com/sindresorhus/query-string
-    function getQueryParameters(str) {
-	var ret = {};
-	if (typeof str !== 'string') {
-		return ret;
+
+    var getQueryParameters,
+	getQueryString;
+    (function() {
+	var qs = queryString || root.queryString,
+	    opts = {
+		sort: true,
+		multiVal: false
+	    };
+	getQueryParameters = function(str) {
+	    return qs.parse(str, opts);
 	}
-	str = str.trim().replace(/^(\?)/, '');
-	if (!str) {
-	    return ret;
+	getQueryString = function(obj) {
+	    return qs.stringify(obj, opts);
 	}
-	str.split('&').forEach(function (param) {
-	    var parts = param.replace(/\+/g, ' ').split('=');
-	    // Firefox (pre 40) decodes `%3D` to `=`
-	    // https://github.com/sindresorhus/query-string/pull/37
-	    var key = parts.shift();
-	    var val = parts.length > 0 ? parts.join('=') : undefined;
-	    key = decodeURIComponent(key);
-	    // missing `=` should be `null`:
-	    // http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
-	    val = val === undefined ? null : decodeURIComponent(val);
-	    if (ret[key] === undefined) {
-		ret[key] = val;
-	    } else if (Array.isArray(ret[key])) {
-		ret[key].push(val);
-	    } else {
-		ret[key] = [ret[key], val];
-	    }
-	});
-	return ret;
-    }
-    function getQueryString(obj) {
-	return obj ? Object.keys(obj).sort().map(function (key) {
-	    var val = obj[key];
-	    if (val === undefined) {
-		return '';
-	    }
-	    if (val === null) {
-		return encodeURIComponent(key);
-	    }
-	    if (Array.isArray(val)) {
-		var result = [];
-		val.slice().forEach(function (val2) {
-		    if (val2 === undefined) {
-			return;
-		    }
-		    if (val2 === null) {
-			result.push(encode(key, opts));
-		    } else {
-			result.push(encode(key, opts) + '=' + encode(val2, opts));
-		    }
-		});
-		return result.join('&');
-	    }
-	    return encodeURIComponent(key) + '=' + encodeURIComponent(val);
-	}).filter(function (x) {
-	    return x.length > 0;
-	}).join('&') : '';
-    }
+    }());
+
 
     var CAT, CatIdentityProvider, CatProfile, CatDevice;
     
@@ -405,7 +350,7 @@ var ConfigurationAssistantTool = (function($){
 	    break;
 	case 'downloadInstaller':
 	    // console.log("wlh", directUri);
-	    window.location.href = directUri;
+	    root.location.href = directUri;
 	    return $.when().then(function(){
 		return directUri;
 	    });
@@ -1642,4 +1587,4 @@ var ConfigurationAssistantTool = (function($){
 	    }
 	}
     }
-})(jQuery);
+}));
