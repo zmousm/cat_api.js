@@ -1,7 +1,5 @@
 ;
 
-// exported
-var CAT, CatIdentityProvider, CatProfile, CatDevice;
 
 var ConfigurationAssistantTool = (function($){
     // Polyfill
@@ -33,10 +31,12 @@ var ConfigurationAssistantTool = (function($){
     // Arguments -> Array converter that (supposedly) does not kill optimizations
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments
     // However this still means passing the Arguments object around...
-    Array.from_arguments = function() {
-	return (arguments.length === 1 ?
-		[arguments[0]] :
-		Array.apply(null, arguments));
+    if (!Array.from_arguments) {
+	Array.from_arguments = function() {
+	    return (arguments.length === 1 ?
+		    [arguments[0]] :
+		    Array.apply(null, arguments));
+	}
     }
     // Polyfill
     if (!Object.keys) {
@@ -59,22 +59,28 @@ var ConfigurationAssistantTool = (function($){
     // another alternative (which requires .bind):
     // new (Function.prototype.bind.apply(Obj, [null].concat(args)));
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply
-    Function.prototype.new_with_array = function(aArgs) {
-	var fConstructor = this,
-	    fNewConstr = function() {
-		fConstructor.apply(this, aArgs);
-	    };
-	fNewConstr.prototype = fConstructor.prototype;
-	return new fNewConstr();
+    if (!Function.prototype.new_with_array) {
+    	Object.defineProperty(Function.prototype, "new_with_array", {
+    	    value: function(aArgs) {
+    // Function.prototype.new_with_array = function(aArgs) {
+		var fConstructor = this,
+		    fNewConstr = function() {
+			fConstructor.apply(this, aArgs);
+		    };
+		fNewConstr.prototype = fConstructor.prototype;
+		return new fNewConstr();
+    // }
+	    }
+	});
     }
 
     // Inheritance: We'll fall back to this instead of a polyfill!
     // but we don't use inheritance...
-    function createObject(proto) {
-	function ctor() { }
-	ctor.prototype = proto;
-	return new ctor();
-    }
+    // function createObject(proto) {
+    // 	function ctor() { }
+    // 	ctor.prototype = proto;
+    // 	return new ctor();
+    // }
     function flipObject(orig) {
 	var key, flip = {};
 	for (key in orig) {
@@ -144,6 +150,8 @@ var ConfigurationAssistantTool = (function($){
 	}).join('&') : '';
     }
 
+    var CAT, CatIdentityProvider, CatProfile, CatDevice;
+    
     // ***** CAT API *****
     var API_TRANSLATIONS = {
 	2: {
@@ -340,7 +348,7 @@ var ConfigurationAssistantTool = (function($){
 	    translations = this.apiVersionGetTranslations.apply(this, args),
 	    obj_keys = Object.keys(obj),
 	    obj_translated;
-	if (obj instanceof Array) {
+	if (Array.isArray(obj)) {
 	    obj_translated = [];
 	} else {
 	    obj_translated = {};
@@ -348,7 +356,7 @@ var ConfigurationAssistantTool = (function($){
 	for (var key in obj_keys) {
 	    key = obj_keys[key];
 	    // skip hasOwnProperty check on Arrays?
-	    if (!(obj instanceof Array) &&
+	    if (!Array.isArray(obj) &&
 		!obj.hasOwnProperty(key)) {
 		continue;
 	    }
@@ -358,7 +366,7 @@ var ConfigurationAssistantTool = (function($){
 	    } else {
 		obj_translated[key] = obj[key];
 	    }
-	    if (!(obj instanceof Array) &&
+	    if (!Array.isArray(obj) &&
 		(key in translations)) {
 		obj_translated[translations[key]] = obj_translated[key];
 		delete obj_translated[key];
@@ -539,7 +547,7 @@ var ConfigurationAssistantTool = (function($){
 		if (!!this.dataType &&
 		    this.dataType == 'json') {
 		    // listAllIdentityProviders returns just an array
-		    if (ret instanceof Array) {
+		    if (Array.isArray(ret)) {
 			$cat._cache[act][lang] = ret;
 			return ret;
 		    }
@@ -835,7 +843,7 @@ var ConfigurationAssistantTool = (function($){
 	    var cb = function(ret) {
 		// console.log('cbID this:', this);
 		// console.log('cbID args:', arguments);
-		if (ret instanceof Array) {
+		if (Array.isArray(ret)) {
 		    if (!(_act in $cat._cache)) {
 			$cat._cache[_act] = {};
 		    }
@@ -1046,7 +1054,7 @@ var ConfigurationAssistantTool = (function($){
     }
     CatIdentityProvider.prototype.getGeo = function() {
 	var cb = function(ret) {
-	    if (ret instanceof Array) {
+	    if (Array.isArray(ret)) {
 		var geo = [];
 		ret.forEach(function(cur, idx) {
 		    var coord = {
@@ -1074,7 +1082,7 @@ var ConfigurationAssistantTool = (function($){
 	    return deg * ((1 / 180) * Math.PI);
 	}
 	var cb = function(ret) {
-	    if (ret instanceof Array) {
+	    if (Array.isArray(ret)) {
 		var res = [];
 		ret.forEach(function(cur, idx) {
 		    var lat2 = deg2rad(cur.lat);
@@ -1129,7 +1137,7 @@ var ConfigurationAssistantTool = (function($){
     CatProfile.getProfilesByIdPEntityID = function(cat, idpid, lang, returnArray) {
 	var cb = function(ret) {
 	    // console.log('prof.getProfilesByIdPID ret', ret);
-	    if (ret instanceof Array) {
+	    if (Array.isArray(ret)) {
 		var profiles = !!!returnArray ? {} : [];
 		for (var idx=0; idx < ret.length; idx++) {
 		    if (!!ret[idx] && ('id' in ret[idx]) && parseInt(ret[idx].id)) {
@@ -1155,7 +1163,7 @@ var ConfigurationAssistantTool = (function($){
 	var $prof = this;
 	var cb = function (ret) {
 	    // console.log('prof.getRaw ret', ret);
-	    if (ret instanceof Array) {
+	    if (Array.isArray(ret)) {
 		return ret.find(function(cur, idx) {
 		    return !!cur && parseInt(cur.id) === $prof.id;
 		});
@@ -1240,7 +1248,7 @@ var ConfigurationAssistantTool = (function($){
 	// consider caching these objects
 	var $prof = this;
 	var cb = function(ret) {
-	    if (ret instanceof Array) {
+	    if (Array.isArray(ret)) {
 		var devices = {};
 		ret.forEach(function(cur, idx) {
 		    // console.log('cur.id', cur.id,
@@ -1363,11 +1371,11 @@ var ConfigurationAssistantTool = (function($){
 	    // console.log('loadDevices.cb args:', arguments);
 	    var devs_array,
 		devs_obj = {};
-	    if (devices_augmented instanceof Array &&
+	    if (Array.isArray(devices_augmented) &&
 		devices_augmented.length) {
 		devs_array = devices_augmented;
 	    }
-	    else if (devices instanceof Array &&
+	    else if (Array.isArray(devices) &&
 		     devices.length) {
 		devs_array = devices;
 	    } else {
@@ -1437,9 +1445,9 @@ var ConfigurationAssistantTool = (function($){
     // not an instance method!
     CatDevice.guessDeviceID = function(userAgent, deviceIDs) {
 	var UAs = CatDevice.prototype.USER_AGENTS;
-	deviceIDs = deviceIDs instanceof Array ? deviceIDs : Object.keys(UAs);
+	deviceIDs = Array.isArray(deviceIDs) ? deviceIDs : Object.keys(UAs);
 	for (var idx=0; idx < deviceIDs.length; idx++) {
-	    var device_patterns = UAs[deviceIDs[idx]] instanceof Array ?
+	    var device_patterns = Array.isArray(UAs[deviceIDs[idx]]) ?
 		UAs[deviceIDs[idx]] : [];
 	    for (var regex in device_patterns) {
 		if (device_patterns[regex].test(userAgent)) {
@@ -1595,7 +1603,7 @@ var ConfigurationAssistantTool = (function($){
     CatDevice.prototype.getGroup = function() {
 	var dev_groups = this.DEVICE_GROUPS;
 	for (var group in dev_groups) {
-	    var device_patterns = dev_groups[group] instanceof Array ?
+	    var device_patterns = Array.isArray(dev_groups[group]) ?
 		dev_groups[group] : [];
 	    for (var regex in device_patterns) {
 		if (device_patterns[regex].test(this.getDeviceID())) {
