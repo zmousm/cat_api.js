@@ -305,9 +305,9 @@
 		!obj.hasOwnProperty(key)) {
 		continue;
 	    }
-	    if (obj_translated[key] instanceof Object) {
+	    if (obj[key] instanceof Object) {
 		obj_translated[key] = this.apiVersionGetTranslated
-		    .apply(this, [obj_translated[key]].concat(args));
+		    .apply(this, [obj[key]].concat(args));
 	    } else {
 		obj_translated[key] = obj[key];
 	    }
