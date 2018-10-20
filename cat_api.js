@@ -487,8 +487,17 @@
 		    this.dataType == 'json') {
 		    // listAllIdentityProviders returns just an array
 		    if (Array.isArray(ret)) {
-			$cat._cache[act][lang] = ret;
-			return ret;
+			var jqxhr = !!arguments[2] ? arguments[2] : {};
+			var data = ret;
+			if ($cat.options.api_version !== 1 &&
+			    !!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
+			    data = $cat.apiVersionGetTranslated(data,
+								jqxhr._cat_qro.action,
+								'from',
+								true);
+			}
+			$cat._cache[act][lang] = data;
+			return data;
 		    }
 		    if (ret.status === 'ok') {
 			ret.status = 1;
