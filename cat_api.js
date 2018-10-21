@@ -1377,6 +1377,19 @@
 	}
 	return null;
     }
+    CatDevice.prototype.detectDeviceID = function(deviceIDs) {
+	var UAs = this.USER_AGENTS;
+	deviceIDs = Array.isArray(deviceIDs) ? deviceIDs : Object.keys(UAs);
+	var cb = function(dev_id_obj) {
+	    return !!dev_id_obj && !!dev_id_obj.id &&
+		(dev_id_obj.id in UAs) &&
+		dev_id_obj.id ||
+		deviceIDs.pop(); // assume last resort at the end
+	}
+	return $.when(
+	    this.cat.detectOS()
+	).then(cb, cb);
+    }
     CatDevice.prototype.getDeviceID = function() {
 	return this.id;
     }
