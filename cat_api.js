@@ -398,60 +398,58 @@
 	    return $.when().then(function(){
 		return $cat._cache[act];
 	    });
-	} else {
-	    var qro = {
-		action: act,
-		lang: undefined
-	    }
-	    var cb = function(ret) {
-		if (!!arguments[1] &&
-		    arguments[1] != 'success') {
-		    return null;
-		}
-		if (!!this.dataType &&
-		    this.dataType == 'json') {
-		    if (ret.status === 'ok') {
-			ret.status = 1;
-			if (!('data' in ret)) {
-			    ret.data = {};
-			    for (var k in ret) {
-				if (k != 'status' && k != 'data' &&
-				    ret.hasOwnProperty(k)) {
-				    ret.data[k] = ret[k];
-				}
-			    }
-			}
-		    }
-		    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
-			$cat._cache[act] = null;
-			return null;
-		    }
-		    if (!!ret.tou) {
-			if (!('_tou' in $cat) || $cat._tou != ret.tou) {
-			    $cat._tou = ret.tou;
-			    if (typeof $cat.options.touCallBack === 'function') {
-				$cat.options.touCallBack(ret.tou);
-			    }
-			}
-		    }
-		    var data = ret.data;
-		    var jqxhr = !!arguments[2] ? arguments[2] : {};
-		    if ($cat.options.api_version !== 1 &&
-			!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-			data = $cat.apiVersionGetTranslated(data,
-							    jqxhr._cat_qro.action,
-							    'from',
-							    true);
-		    }
-		    $cat._cache[act] = data;
-		    return data;
-		} else {
-		    return null;
-		}
-	    }
-	    return this.query(qro)
-		.then(cb, cb);
 	}
+	var qro = {
+	    action: act,
+	    lang: undefined
+	}
+	var cb = function(ret) {
+	    if (!!arguments[1] &&
+		arguments[1] != 'success') {
+		return null;
+	    }
+	    if (!!!this.dataType ||
+		this.dataType != 'json') {
+		return null;
+	    }
+	    if (ret.status === 'ok') {
+		ret.status = 1;
+		if (!('data' in ret)) {
+		    ret.data = {};
+		    for (var k in ret) {
+			if (k != 'status' && k != 'data' &&
+			    ret.hasOwnProperty(k)) {
+			    ret.data[k] = ret[k];
+			}
+		    }
+		}
+	    }
+	    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
+		$cat._cache[act] = null;
+		return null;
+	    }
+	    if (!!ret.tou) {
+		if (!('_tou' in $cat) || $cat._tou != ret.tou) {
+		    $cat._tou = ret.tou;
+		    if (typeof $cat.options.touCallBack === 'function') {
+			$cat.options.touCallBack(ret.tou);
+		    }
+		}
+	    }
+	    var data = ret.data;
+	    var jqxhr = !!arguments[2] ? arguments[2] : {};
+	    if ($cat.options.api_version !== 1 &&
+		!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
+		data = $cat.apiVersionGetTranslated(data,
+						    jqxhr._cat_qro.action,
+						    'from',
+						    true);
+	    }
+	    $cat._cache[act] = data;
+	    return data;
+	}
+	return this.query(qro)
+	    .then(cb, cb);
     }
     CAT.prototype._qry1args = function(act, lang) {
 	if (!act) {
