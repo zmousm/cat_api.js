@@ -425,8 +425,7 @@
 		}
 	    }
 	    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
-		$cat._cache[act] = null;
-		return null;
+		return $cat._cache[act] = null;
 	    }
 	    if (!!ret.tou) {
 		if (!('_tou' in $cat) || $cat._tou != ret.tou) {
@@ -445,8 +444,7 @@
 						    'from',
 						    true);
 	    }
-	    $cat._cache[act] = data;
-	    return data;
+	    return $cat._cache[act] = data;
 	}
 	return this.query(qro)
 	    .then(cb, cb);
@@ -483,15 +481,13 @@
 	    }
 	    // if (typeof ret === 'string' ||
 	    // 	ret instanceof $) {
-	    // 	$cat._cache[act][lang] = ret;
-	    // 	return ret;
+	    // 	return $cat._cache[act][lang] = ret;
 	    // }
 	    if (!!!this.dataType ||
 		this.dataType != 'json') {
 		return null;
 	    }
-	    var jqxhr = !!arguments[2] ? arguments[2] : {},
-		data;
+	    var jqxhr = !!arguments[2] ? arguments[2] : {};
 	    function translateData(data) {
 		if ($cat.options.api_version !== 1 &&
 		    !!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
@@ -504,9 +500,7 @@
 	    }
 	    // listAllIdentityProviders returns just an array
 	    if (Array.isArray(ret)) {
-		data = translateData(ret);
-		$cat._cache[act][lang] = data;
-		return data;
+		return $cat._cache[act][lang] = translateData(ret);
 	    }
 	    if (ret.status === 'ok') {
 		ret.status = 1;
@@ -521,8 +515,7 @@
 		}
 	    }
 	    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
-		$cat._cache[act][lang] = null;
-		return null;
+		return $cat._cache[act][lang] = null;
 	    }
 	    if (!!ret.tou) {
 		if (!('_tou' in $cat) || $cat._tou != ret.tou) {
@@ -532,9 +525,7 @@
 		    }
 		}
 	    }
-	    data = translateData(ret.data);
-	    $cat._cache[act][lang] = data;
-	    return data;
+	    return $cat._cache[act][lang] = translateData(ret.data);
 	}
 	return this.query(qro)
 	    .then(cb, cb);
@@ -578,8 +569,7 @@
 	    }
 	    if (typeof ret === 'string' ||
 		ret instanceof $) {
-		$cat._cache[act][idval][lang] = ret;
-		return ret;
+		return $cat._cache[act][idval][lang] = ret;
 	    }
 	    if (!!!this.dataType ||
 		this.dataType != 'json') {
@@ -598,8 +588,7 @@
 		}
 	    }
 	    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
-		$cat._cache[act][idval][lang] = null;
-		return null;
+		return $cat._cache[act][idval][lang] = null;
 	    }
 	    if (!!ret.tou) {
 		if (!('_tou' in $cat) || $cat._tou != ret.tou) {
@@ -618,8 +607,7 @@
 						    'from',
 						    true);
 	    }
-	    $cat._cache[act][idval][lang] = data;
-	    return data;
+	    return $cat._cache[act][idval][lang] = data;
 	}
 	return this.query(qro)
 	    .then(cb, cb);
@@ -670,8 +658,7 @@
 	    }
 	    if (typeof ret === 'string' ||
 		ret instanceof $) {
-		$cat._cache[act][id1val][id2val][lang] = ret;
-		return ret;
+		return $cat._cache[act][id1val][id2val][lang] = ret;
 	    }
 	    if (!!!this.dataType ||
 		this.dataType != 'json') {
@@ -690,8 +677,7 @@
 		}
 	    }
 	    if (!('status' in ret) || ret.status != 1 || !('data' in ret)) {
-		$cat._cache[act][id1val][id2val][lang] = null;
-		return null;
+		return $cat._cache[act][id1val][id2val][lang] = null;
 	    }
 	    if (!!ret.tou) {
 		if (!('_tou' in $cat) || $cat._tou != ret.tou) {
@@ -710,8 +696,7 @@
 						    'from',
 						    true);
 	    }
-	    $cat._cache[act][id1val][id2val][lang] = data;
-	    return data;
+	    return $cat._cache[act][id1val][id2val][lang] = data;
 	}
 	return this.query(qro)
 	    .then(cb, cb);
