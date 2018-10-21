@@ -490,17 +490,21 @@
 		this.dataType != 'json') {
 		return null;
 	    }
-	    // listAllIdentityProviders returns just an array
-	    if (Array.isArray(ret)) {
-		var jqxhr = !!arguments[2] ? arguments[2] : {};
-		var data = ret;
+	    var jqxhr = !!arguments[2] ? arguments[2] : {},
+		data;
+	    function translateData(data) {
 		if ($cat.options.api_version !== 1 &&
 		    !!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-		    data = $cat.apiVersionGetTranslated(data,
+		    return $cat.apiVersionGetTranslated(data,
 							jqxhr._cat_qro.action,
 							'from',
 							true);
 		}
+		return data;
+	    }
+	    // listAllIdentityProviders returns just an array
+	    if (Array.isArray(ret)) {
+		data = translateData(ret);
 		$cat._cache[act][lang] = data;
 		return data;
 	    }
@@ -528,15 +532,7 @@
 		    }
 		}
 	    }
-	    var data = ret.data;
-	    var jqxhr = !!arguments[2] ? arguments[2] : {};
-	    if ($cat.options.api_version !== 1 &&
-		!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-		data = $cat.apiVersionGetTranslated(data,
-						    jqxhr._cat_qro.action,
-						    'from',
-						    true);
-	    }
+	    data = translateData(ret.data);
 	    $cat._cache[act][lang] = data;
 	    return data;
 	}
