@@ -319,6 +319,16 @@
 	}
 	return obj_translated;
     }
+    CAT.prototype._qryRespTranslate = function(data, jqxhr) {
+	if (this.options.api_version !== 1 &&
+	    !!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
+	    return this.apiVersionGetTranslated(data,
+						jqxhr._cat_qro.action,
+						'from',
+						true);
+	}
+	return data;
+    }
     CAT.prototype.query = function(qro) {
 	if (!('action' in qro)) {
 	    // throw something?
@@ -435,16 +445,8 @@
 		    }
 		}
 	    }
-	    var data = ret.data;
 	    var jqxhr = !!arguments[2] ? arguments[2] : {};
-	    if ($cat.options.api_version !== 1 &&
-		!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-		data = $cat.apiVersionGetTranslated(data,
-						    jqxhr._cat_qro.action,
-						    'from',
-						    true);
-	    }
-	    return $cat._cache[act] = data;
+	    return $cat._cache[act] = $cat._qryRespTranslate(ret.data, jqxhr);
 	}
 	return this.query(qro)
 	    .then(cb, cb);
@@ -488,19 +490,10 @@
 		return null;
 	    }
 	    var jqxhr = !!arguments[2] ? arguments[2] : {};
-	    function translateData(data) {
-		if ($cat.options.api_version !== 1 &&
-		    !!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-		    return $cat.apiVersionGetTranslated(data,
-							jqxhr._cat_qro.action,
-							'from',
-							true);
-		}
-		return data;
-	    }
 	    // listAllIdentityProviders returns just an array
 	    if (Array.isArray(ret)) {
-		return $cat._cache[act][lang] = translateData(ret);
+		return $cat._cache[act][lang] =
+		    $cat._qryRespTranslate(ret, jqxhr);
 	    }
 	    if (ret.status === 'ok') {
 		ret.status = 1;
@@ -525,7 +518,8 @@
 		    }
 		}
 	    }
-	    return $cat._cache[act][lang] = translateData(ret.data);
+	    return $cat._cache[act][lang] =
+		$cat._qryRespTranslate(ret.data, jqxhr);
 	}
 	return this.query(qro)
 	    .then(cb, cb);
@@ -598,16 +592,9 @@
 		    }
 		}
 	    }
-	    var data = ret.data;
 	    var jqxhr = !!arguments[2] ? arguments[2] : {};
-	    if ($cat.options.api_version !== 1 &&
-		!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-		data = $cat.apiVersionGetTranslated(data,
-						    jqxhr._cat_qro.action,
-						    'from',
-						    true);
-	    }
-	    return $cat._cache[act][idval][lang] = data;
+	    return $cat._cache[act][idval][lang] =
+		$cat._qryRespTranslate(ret.data, jqxhr);
 	}
 	return this.query(qro)
 	    .then(cb, cb);
@@ -687,16 +674,9 @@
 		    }
 		}
 	    }
-	    var data = ret.data;
 	    var jqxhr = !!arguments[2] ? arguments[2] : {};
-	    if ($cat.options.api_version !== 1 &&
-		!!jqxhr._cat_qro && !!jqxhr._cat_qro.action) {
-		data = $cat.apiVersionGetTranslated(data,
-						    jqxhr._cat_qro.action,
-						    'from',
-						    true);
-	    }
-	    return $cat._cache[act][id1val][id2val][lang] = data;
+	    return $cat._cache[act][id1val][id2val][lang] =
+		$cat._qryRespTranslate(ret.data, jqxhr);
 	}
 	return this.query(qro)
 	    .then(cb, cb);
