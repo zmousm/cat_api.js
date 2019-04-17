@@ -1337,7 +1337,6 @@
 	deviceIDs = Array.isArray(deviceIDs) ? deviceIDs : Object.keys(UAs);
 	var cb = function(dev_id_obj) {
 	    return !!dev_id_obj && !!dev_id_obj.id &&
-		(dev_id_obj.id in UAs) &&
 		dev_id_obj.id ||
 		deviceIDs.pop(); // assume last resort at the end
 	}
