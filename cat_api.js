@@ -941,6 +941,27 @@
     CatIdentityProvider.prototype.getDisplay = function() {
 	return this._getProp(this.getRaw, 'title');
     }
+	CatIdentityProvider.prototype.getKeywords = function() {
+		var cb = function(ret) {
+			if (!Array.isArray(ret)) {
+				return null;
+			}
+			function flatten_dedupe(what, initial) {
+				return what.reduce(function(carry, item) {
+					if (Array.isArray(item)) {
+						flatten_dedupe(item, carry);
+					} else if (carry.indexOf(item) == -1) {
+						carry.push(item);
+					}
+					return carry;
+				}, initial);
+			}
+			return flatten_dedupe(ret, []);
+		}
+		return $.when(
+			this._getProp(this.getRaw, 'keywords')
+		).then(cb, cb);
+	}
     CatIdentityProvider.prototype.getGeo = function() {
 	var cb = function(ret) {
 	    if (Array.isArray(ret)) {
